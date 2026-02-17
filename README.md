@@ -13,9 +13,7 @@ const BundleBee = require('bundlebee')
 const Corestore = require('corestore')
 
 const store = new Corestore('./storage')
-
 const b = new BundleBee(store)
-await b.ready()
 
 // Add a module entry point
 const bundle = await b.add(new URL('file:///path/to/project/'), 'index.js')
@@ -29,6 +27,19 @@ const mod = await b.load(new URL('file:///path/to/project/'), '/index.js')
 ```js
 const b = await BundleBee.require(store, './0.bundle', './1.bundle')
 ```
+
+### Getting existing bundles
+
+```js
+const b = new BundleBee(store, { key: myKey })
+
+// get remote bundle
+const mod = await b.load(new URL('file:///path/to/project/'), '/index.js')
+
+// get remote historical file using Hyperbee2 length
+const { source, resolutions } = await b1.get('/entrypoint.js', 1)
+```
+
 
 ## API
 
