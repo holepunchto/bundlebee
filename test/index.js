@@ -30,16 +30,6 @@ test('works', async (t) => {
   }
 
   {
-    // all resolutions
-    for await (const data of b._bee.createReadStream({
-      gt: b4a.from('#resolutions-'),
-      lt: b4a.from('/')
-    })) {
-      console.log(data.key.toString())
-    }
-  }
-
-  {
     const mod = await b.load(new URL(`file:${__dirname}/fixtures/3/`), '/entrypoint.js')
     t.ok(mod)
     console.log(mod)
