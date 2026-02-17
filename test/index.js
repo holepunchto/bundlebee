@@ -1,5 +1,4 @@
 const { test } = require('brittle')
-const fs = require('fs')
 const Corestore = require('corestore')
 const BundleBee = require('..')
 

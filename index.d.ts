@@ -22,7 +22,7 @@ declare module 'bundlebee' {
   }
 
   class BundleBee extends ReadyResource {
-    constructor(store: any, opts?: BundleBeeOptions)
+    constructor(store: any, opts?: BundleBeeOptions) // lunte-disable-line
 
     static require(
       store: any,
