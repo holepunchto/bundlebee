@@ -41,7 +41,7 @@ module.exports = class BundleBee extends ReadyResource {
     return b
   }
 
-  _ready() {
+  _open() {
     return this._bee.ready()
   }
 

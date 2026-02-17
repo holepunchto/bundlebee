@@ -27,7 +27,6 @@ test('basic', async (t) => {
   {
     const mod = await b.load(new URL(`file:${__dirname}/fixtures/3/`), '/entrypoint.js')
     t.ok(mod)
-    console.log(mod)
     t.is(mod.exports, 'bundle-2')
   }
 
