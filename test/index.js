@@ -36,11 +36,9 @@ test('works', async (t) => {
     t.is(mod.exports, 'bundle-2')
   }
 
-  // const b = new BundleBee(store)
-
-  // const layer = await b.add(new URL(`file:${__dirname}/fixtures/3/`), 'entrypoint.js')
-  // t.ok(layer)
-  // fs.writeFileSync('./test/fixtures/3.bundle', layer.toBuffer())
+  const layer = await b.add(new URL(`file:${__dirname}/fixtures/3/`), 'entrypoint.js')
+  t.ok(layer)
+  fs.writeFileSync('./test/fixtures/3.bundle', layer.toBuffer())
 
   // {
   //   const mod = b.checkout(1)

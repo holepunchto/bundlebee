@@ -140,7 +140,7 @@ module.exports = class BundleBee extends ReadyResource {
       if (
         existing &&
         b4a.equals(existing.source, dependency.source) &&
-        sameImports(existing.imports, imps)
+        sameImports(existing.resolutions, imps)
       ) {
         continue
       }

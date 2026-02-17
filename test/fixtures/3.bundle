@@ -1,6 +1,5 @@
-272
-{"version":0,"id":null,"main":null,"imports":{},"resolutions":{"/entrypoint.js":{"#package":"/package.json"},"/package.json":{}},"addons":[],"assets":[],"files":{"/entrypoint.js":{"offset":0,"length":28,"mode":420},"/package.json":{"offset":28,"length":287,"mode":420}}}
-module.exports = 'bundle-2'
+172
+{"version":0,"id":null,"main":null,"imports":{},"resolutions":{"/package.json":{}},"addons":[],"assets":[],"files":{"/package.json":{"offset":0,"length":287,"mode":420}}}
 {
   "name": "3",
   "version": "1.0.0",
