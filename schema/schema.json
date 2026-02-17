@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "schema": [
+    {
+      "name": "entry",
+      "namespace": "bundlebee",
+      "compact": false,
+      "flagsPosition": -1,
+      "fields": [
+        {
+          "name": "source",
+          "required": true,
+          "type": "buffer",
+          "version": 1
+        },
+        {
+          "name": "resolutions",
+          "required": true,
+          "type": "stringRecord",
+          "version": 1
+        }
+      ]
+    }
+  ]
+}
