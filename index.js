@@ -41,6 +41,14 @@ module.exports = class BundleBee extends ReadyResource {
     return b
   }
 
+  head() {
+    return this._bee.head()
+  }
+
+  get key() {
+    return this._bee.head()?.key || null
+  }
+
   _open() {
     return this._bee.ready()
   }
