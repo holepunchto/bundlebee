@@ -234,3 +234,19 @@ async function* listPrefix(url) {
     }
   }
 }
+
+function findModule(cache, v, root) {
+  let s = '.'
+  let prev = null
+
+  while (true) {
+    const cand = new URL(s + v, root).href
+    s += '/..'
+    if (prev === cand) break
+    prev = cand
+    const nm = cache[cand]
+    if (nm) return nm
+  }
+
+  return null
+}
