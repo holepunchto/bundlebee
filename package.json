@@ -7,6 +7,14 @@
     "fs": {
       "bare": "bare-fs",
       "default": "fs"
+    },
+    "path": {
+      "bare": "bare-path",
+      "default": "path"
+    },
+    "os": {
+      "bare": "bare-os",
+      "default": "os"
     }
   },
   "exports": {
