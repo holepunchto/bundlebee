@@ -20,13 +20,13 @@ test('works', async (t) => {
   {
     const { source, resolutions } = await b.get('/entrypoint.js')
     t.is(source.toString().trim(), `module.exports = 'bundle-2'`)
-    t.alike(resolutions, { '#package': '/package.json' })
+    t.alike(resolutions, Object.assign(Object.create(null), { '#package': '/package.json' }))
   }
 
   {
     const { source, resolutions } = await b.get('/entrypoint.js', 1)
     t.is(source.toString().trim(), `module.exports = 'bundle-0'`)
-    t.alike(resolutions, { '#package': '/package.json' })
+    t.alike(resolutions, Object.assign(Object.create(null), { '#package': '/package.json' }))
   }
 
   {
