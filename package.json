@@ -1,7 +1,7 @@
 {
-  "name": "@holepunchto/repo-template",
+  "name": "bundlebee",
   "version": "0.0.1",
-  "description": "repo-template",
+  "description": "bundlebee",
   "main": "index.js",
   "imports": {
     "fs": {

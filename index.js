@@ -11,16 +11,28 @@ const { getEncoding } = require('./schema')
 
 const Entry = getEncoding('@bundlebee/entry')
 
+// TODO
+// metadata entry on the bee - such as abi mapping
+// manifest = abi:25
+// can stream history to see the old ones
+
+// TODO
+// peer deps
+
 module.exports = class BundleBee extends ReadyResource {
-  constructor(store) {
+  constructor(store, opts = {}) {
     super()
-    this._bee = new Bee(store)
+    this._bee = new Bee(store, opts)
+
+    this.ready().catch(noop)
   }
 
   static async require(store, ...files) {
+    const opts =
+      files.length && typeof files[files.length - 1] === 'object' ? files.pop() : undefined
+
     const bundles = files.map((f) => Bundle.from(fs.readFileSync(f)))
-    const b = new BundleBee(store)
-    await b.ready()
+    const b = new BundleBee(store, opts)
 
     for (const bu of bundles) {
       await b._addBundle(bu)
@@ -34,9 +46,9 @@ module.exports = class BundleBee extends ReadyResource {
   }
 
   async get(key, checkout) {
-    console.log('getting', key)
+    if (!this.opened) await this.ready()
 
-    const b = checkout ? this.checkout(checkout) : this._bee
+    const b = checkout ? await this.checkout(checkout) : this._bee
 
     const entry = await b.get(b4a.from(key))
     if (!entry) return null
@@ -44,33 +56,17 @@ module.exports = class BundleBee extends ReadyResource {
     return c.decode(Entry, entry.value)
   }
 
-  checkout(length) {
+  async checkout(length) {
+    if (!this.opened) await this.ready()
     if (!length) length = this._bee.head().length
 
     return this._bee.checkout({ length })
   }
 
-  async _addBundle(bundle) {
-    const w = this._bee.write()
-    for (const f in bundle.files) {
-      // TODO: make a schema for resolutions value
-      // source + resolutions map
-      w.tryPut(
-        b4a.from(f),
-        c.encode(Entry, {
-          source: bundle.files[f].read(),
-          resolutions: bundle.resolutions[f]
-        })
-      )
-    }
-    await w.flush()
-  }
-
   async load(root, entry, checkout, { cache = require.cache, skipModules = true } = {}) {
-    // load the entrypoint and load everything based on imports etc
-    // store all into a map
+    if (!this.opened) await this.ready()
 
-    const b = this.checkout(checkout)
+    const b = await this.checkout(checkout)
     const loadedData = new Map()
 
     const protocol = new Module.Protocol({
@@ -113,14 +109,13 @@ module.exports = class BundleBee extends ReadyResource {
   }
 
   async add(root, entry, { skipModules = true } = {}) {
+    if (!this.opened) await this.ready()
     if (!root.pathname.endsWith('/')) root = new URL('./', root)
 
     const nodeModules = new URL('./node_modules', root)
     const bundle = new Bundle()
 
     const resolutions = {}
-
-    console.log(new URL(entry, root).href)
 
     for await (const dependency of traverse(
       new URL(entry, root),
@@ -155,7 +150,27 @@ module.exports = class BundleBee extends ReadyResource {
 
     return bundle
   }
+
+  async _addBundle(bundle) {
+    if (!this.opened) await this.ready()
+
+    const w = this._bee.write()
+    for (const f in bundle.files) {
+      // TODO: make a schema for resolutions value
+      // source + resolutions map
+      w.tryPut(
+        b4a.from(f),
+        c.encode(Entry, {
+          source: bundle.files[f].read(),
+          resolutions: bundle.resolutions[f]
+        })
+      )
+    }
+    await w.flush()
+  }
 }
+
+function noop() {}
 
 function sameImports(a, b) {
   const x = Object.keys(a)

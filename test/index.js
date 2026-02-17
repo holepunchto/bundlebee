@@ -1,10 +1,9 @@
 const { test } = require('brittle')
 const fs = require('fs')
 const Corestore = require('corestore')
-const b4a = require('b4a')
 const BundleBee = require('..')
 
-test('works', async (t) => {
+test('basic', async (t) => {
   const store = new Corestore(await t.tmp())
   const b = await BundleBee.require(
     store,
@@ -12,10 +11,6 @@ test('works', async (t) => {
     './test/fixtures/1.bundle',
     './test/fixtures/2.bundle'
   )
-
-  // metadata entry on the bee - such as abi mapping
-  // manifest = abi:25
-  // can stream history to see the old ones
 
   {
     const { source, resolutions } = await b.get('/entrypoint.js')
@@ -38,15 +33,59 @@ test('works', async (t) => {
 
   const layer = await b.add(new URL(`file:${__dirname}/fixtures/3/`), 'entrypoint.js')
   t.ok(layer)
-  fs.writeFileSync('./test/fixtures/3.bundle', layer.toBuffer())
+  t.ok(layer.toBuffer())
+})
 
-  // {
-  //   const mod = b.checkout(1)
-  //   t.is(mod.files['/entrypoint.js'].read().toString(), `module.exports = 'bundle-1'\n`)
-  // }
+test('sharing', async (t) => {
+  const store = new Corestore(await t.tmp())
+  const b1 = new BundleBee(store)
 
-  // {
-  //   const mod = b.checkout(2)
-  //   t.is(mod.files['/entrypoint.js'].read().toString(), `module.exports = 'bundle-2'\n`)
-  // }
+  const layer = await b1.add(new URL(`file:${__dirname}/fixtures/3/`), 'entrypoint.js')
+  t.ok(layer)
+
+  {
+    const { source, resolutions } = await b1.get('/entrypoint.js')
+    t.is(source.toString().trim(), `module.exports = 'bundle-2'`)
+    t.alike(resolutions, Object.assign(Object.create(null), { '#package': '/package.json' }))
+  }
+
+  const b2 = new BundleBee(store, { key: b1.key })
+
+  {
+    const { source, resolutions } = await b2.get('/entrypoint.js')
+    t.is(source.toString().trim(), `module.exports = 'bundle-2'`)
+    t.alike(
+      resolutions,
+      Object.assign(Object.create(null), { '#package': '/package.json' }),
+      'b2 works'
+    )
+  }
+})
+
+test('shared history', async (t) => {
+  const store = new Corestore(await t.tmp())
+  const b1 = await BundleBee.require(
+    store,
+    './test/fixtures/0.bundle',
+    './test/fixtures/1.bundle',
+    './test/fixtures/2.bundle'
+  )
+
+  {
+    const { source, resolutions } = await b1.get('/entrypoint.js')
+    t.is(source.toString().trim(), `module.exports = 'bundle-2'`)
+    t.alike(resolutions, Object.assign(Object.create(null), { '#package': '/package.json' }))
+  }
+
+  const b2 = new BundleBee(store, { key: b1.key })
+
+  {
+    const { source, resolutions } = await b2.get('/entrypoint.js', 1)
+    t.is(source.toString().trim(), `module.exports = 'bundle-0'`)
+    t.alike(
+      resolutions,
+      Object.assign(Object.create(null), { '#package': '/package.json' }),
+      'b2 works'
+    )
+  }
 })
