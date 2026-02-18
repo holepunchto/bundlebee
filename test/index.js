@@ -72,21 +72,20 @@ test('add - modules', async (t) => {
   const store = new Corestore(await t.tmp())
   const b = new Hyperbundle(store)
 
-  const layer = await b.add(new URL(`file:${__dirname}/fixtures/3/`), 'entrypoint.js', {
+  // note: node_modules will try use higher up the tree if doesn't exist
+  // hence we have it checked in
+  const layer = await b.add(new URL(`file:${__dirname}/fixtures/4/`), 'entrypoint.js', {
     skipModules: false
   })
   t.ok(layer)
-  t.ok(Object.keys(layer.files).find((k) => k.endsWith('/node_modules/b4a/index.js')))
+  t.ok(Object.keys(layer.files).find((k) => k.endsWith('/node_modules/stuff/index.js')))
 
   const { source, resolutions } = await b.get('/entrypoint.js')
-  t.is(
-    source.toString().trim().split('\n').pop(),
-    `module.exports = () => b4a.from('bundle-2').toString('utf-8')`
-  )
+  t.is(source.toString().trim().split('\n').pop(), `module.exports = () => stuff('bundle-2')`)
   t.ok(resolutions['#package'].endsWith('/package.json'))
-  t.ok(resolutions['b4a'].endsWith('/node_modules/b4a/index.js'))
+  t.ok(resolutions['stuff'].endsWith('/node_modules/stuff/index.js'))
 
-  const mod = await b.load(new URL(`file:${__dirname}/fixtures/3/`), '/entrypoint.js', undefined, {
+  const mod = await b.load(new URL(`file:${__dirname}/fixtures/4/`), '/entrypoint.js', undefined, {
     skipModules: false
   })
 
@@ -99,10 +98,10 @@ test('add - modules w/peer deps', async (t) => {
 
   const layer = await b.add(new URL(`file:${__dirname}/fixtures/3/`), 'entrypoint.js', {
     skipModules: false,
-    peerDependencies: ['b4a']
+    peerDependencies: ['b4a'] // overrides skipModules for just these modules
   })
   t.ok(layer)
-  t.absent(Object.keys(layer.files).find((k) => k.endsWith('/node_modules/b4a/index.js')))
+  t.absent(Object.keys(layer.files).find((k) => k.endsWith('/node_modules/stuff/index.js')))
 
   const { source, resolutions } = await b.get('/entrypoint.js')
   t.is(

@@ -188,7 +188,6 @@ module.exports = class Hyperbundle extends ReadyResource {
       readModule,
       listPrefix
     )) {
-      console.log('test', dependency.url.href, nodeModules.href)
       if (dependency.url.href.startsWith(nodeModules.href)) {
         if (skipModules) continue
         if (peerDependencies) {
