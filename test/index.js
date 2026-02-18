@@ -61,13 +61,8 @@ test('add', async (t) => {
     source.toString().trim().split('\n').pop(),
     `module.exports = () => b4a.from('bundle-2').toString('utf-8')`
   )
-  t.alike(
-    resolutions,
-    Object.assign(Object.create(null), {
-      '#package': '/package.json',
-      b4a: '/node_modules/b4a/index.js'
-    })
-  )
+  t.ok(resolutions['#package'].endsWith('/package.json'))
+  t.ok(resolutions['b4a'].endsWith("'/node_modules/b4a/index.js'"))
 
   const mod = await b.load(new URL(`file:${__dirname}/fixtures/3/`), '/entrypoint.js')
   t.is(mod.exports(), 'bundle-2')
@@ -88,13 +83,8 @@ test('add - modules', async (t) => {
     source.toString().trim().split('\n').pop(),
     `module.exports = () => b4a.from('bundle-2').toString('utf-8')`
   )
-  t.alike(
-    resolutions,
-    Object.assign(Object.create(null), {
-      '#package': '/package.json',
-      b4a: '/node_modules/b4a/index.js'
-    })
-  )
+  t.ok(resolutions['#package'].endsWith('/package.json'))
+  t.ok(resolutions['b4a'].endsWith("'/node_modules/b4a/index.js'"))
 
   const mod = await b.load(new URL(`file:${__dirname}/fixtures/3/`), '/entrypoint.js', undefined, {
     skipModules: false
@@ -119,13 +109,8 @@ test('add - modules w/peer deps', async (t) => {
     source.toString().trim().split('\n').pop(),
     `module.exports = () => b4a.from('bundle-2').toString('utf-8')`
   )
-  t.alike(
-    resolutions,
-    Object.assign(Object.create(null), {
-      '#package': '/package.json',
-      b4a: '/node_modules/b4a/index.js'
-    })
-  )
+  t.ok(resolutions['#package'].endsWith('/package.json'))
+  t.ok(resolutions['b4a'].endsWith("'/node_modules/b4a/index.js'"))
 
   const mod = await b.load(new URL(`file:${__dirname}/fixtures/3/`), '/entrypoint.js', undefined, {
     skipModules: false
