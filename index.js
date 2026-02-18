@@ -103,7 +103,7 @@ module.exports = class Hyperbundle extends ReadyResource {
       gt: MANIFEST_KEY,
       lt: MANIFEST_KEY
     })) {
-      const record = d.batch[0].keys.find((k) => k.key.toString() === MANIFEST_KEY_VALUE)
+      const record = d.batch[0].keys?.find((k) => k.key.toString() === MANIFEST_KEY_VALUE)
       if (!record) continue
 
       // always last in the batch
