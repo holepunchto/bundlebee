@@ -62,7 +62,7 @@ test('add', async (t) => {
     `module.exports = () => b4a.from('bundle-2').toString('utf-8')`
   )
   t.ok(resolutions['#package'].endsWith('/package.json'))
-  t.ok(resolutions['b4a'].endsWith("'/node_modules/b4a/index.js'"))
+  t.ok(resolutions['b4a'].endsWith('/node_modules/b4a/index.js'))
 
   const mod = await b.load(new URL(`file:${__dirname}/fixtures/3/`), '/entrypoint.js')
   t.is(mod.exports(), 'bundle-2')
@@ -84,7 +84,7 @@ test('add - modules', async (t) => {
     `module.exports = () => b4a.from('bundle-2').toString('utf-8')`
   )
   t.ok(resolutions['#package'].endsWith('/package.json'))
-  t.ok(resolutions['b4a'].endsWith("'/node_modules/b4a/index.js'"))
+  t.ok(resolutions['b4a'].endsWith('/node_modules/b4a/index.js'))
 
   const mod = await b.load(new URL(`file:${__dirname}/fixtures/3/`), '/entrypoint.js', undefined, {
     skipModules: false
@@ -110,7 +110,7 @@ test('add - modules w/peer deps', async (t) => {
     `module.exports = () => b4a.from('bundle-2').toString('utf-8')`
   )
   t.ok(resolutions['#package'].endsWith('/package.json'))
-  t.ok(resolutions['b4a'].endsWith("'/node_modules/b4a/index.js'"))
+  t.ok(resolutions['b4a'].endsWith('/node_modules/b4a/index.js'))
 
   const mod = await b.load(new URL(`file:${__dirname}/fixtures/3/`), '/entrypoint.js', undefined, {
     skipModules: false
