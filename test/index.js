@@ -54,6 +54,7 @@ test('add', async (t) => {
 
   const layer = await b.add(new URL(`file:${__dirname}/fixtures/3/`), 'entrypoint.js')
   t.ok(layer)
+  t.absent(layer.files['/node_modules/b4a/index.js'])
 
   const { source, resolutions } = await b.get('/entrypoint.js')
   t.is(
@@ -69,6 +70,65 @@ test('add', async (t) => {
   )
 
   const mod = await b.load(new URL(`file:${__dirname}/fixtures/3/`), '/entrypoint.js')
+  t.is(mod.exports(), 'bundle-2')
+})
+
+test('add - modules', async (t) => {
+  const store = new Corestore(await t.tmp())
+  const b = new BundleBee(store)
+
+  const layer = await b.add(new URL(`file:${__dirname}/fixtures/3/`), 'entrypoint.js', {
+    skipModules: false
+  })
+  t.ok(layer)
+  t.ok(layer.files['/node_modules/b4a/index.js'])
+
+  const { source, resolutions } = await b.get('/entrypoint.js')
+  t.is(
+    source.toString().trim().split('\n').pop(),
+    `module.exports = () => b4a.from('bundle-2').toString('utf-8')`
+  )
+  t.alike(
+    resolutions,
+    Object.assign(Object.create(null), {
+      '#package': '/package.json',
+      b4a: '/node_modules/b4a/index.js'
+    })
+  )
+
+  const mod = await b.load(new URL(`file:${__dirname}/fixtures/3/`), '/entrypoint.js', undefined, {
+    skipModules: false
+  })
+
+  t.is(mod.exports(), 'bundle-2')
+})
+
+test.solo('add - modules w/peer deps', async (t) => {
+  const store = new Corestore(await t.tmp())
+  const b = new BundleBee(store, { peerDependencies: ['b4a'] })
+
+  const layer = await b.add(new URL(`file:${__dirname}/fixtures/3/`), 'entrypoint.js', {
+    skipModules: false
+  })
+  t.ok(layer)
+  t.absent(layer.files['/node_modules/b4a/index.js'])
+
+  const { source, resolutions } = await b.get('/entrypoint.js')
+  t.is(
+    source.toString().trim().split('\n').pop(),
+    `module.exports = () => b4a.from('bundle-2').toString('utf-8')`
+  )
+  t.alike(
+    resolutions,
+    Object.assign(Object.create(null), {
+      '#package': '/package.json'
+    })
+  )
+
+  const mod = await b.load(new URL(`file:${__dirname}/fixtures/3/`), '/entrypoint.js', undefined, {
+    skipModules: false
+  })
+
   t.is(mod.exports(), 'bundle-2')
 })
 

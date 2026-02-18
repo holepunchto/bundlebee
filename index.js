@@ -19,6 +19,7 @@ module.exports = class BundleBee extends ReadyResource {
   constructor(store, opts = {}) {
     super()
     this._bee = new Bee(store, opts)
+    this._peerDeps = opts.peerDependencies ? new Set(opts.peerDependencies) : null
 
     this.ready().catch(noop)
   }
@@ -161,11 +162,20 @@ module.exports = class BundleBee extends ReadyResource {
       readModule,
       listPrefix
     )) {
-      if (dependency.url.href.startsWith(nodeModules.href) && skipModules) continue
+      if (dependency.url.href.startsWith(nodeModules.href)) {
+        if (skipModules) continue
+        if (this._peerDeps) {
+          const moduleName = dependency.url.pathname
+            .replace(root.pathname + 'node_modules/', '')
+            .split('/')[0]
+          if (this._peerDeps.has(moduleName)) continue
+        }
+      }
 
       const p = dependency.url.pathname.replace(root.pathname, '/')
       const imps = {}
       for (const [k, v] of Object.entries(dependency.imports)) {
+        if (this._peerDeps && this._peerDeps.has(k)) continue
         imps[k] = new URL(v).pathname.replace(root.pathname, '/')
       }
 
