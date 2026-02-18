@@ -2,6 +2,7 @@ const { test } = require('brittle')
 const Corestore = require('corestore')
 const Hyperswarm = require('hyperswarm')
 const createTestnet = require('hyperdht/testnet')
+const z32 = require('z32')
 const BundleBee = require('..')
 
 test('basic', async (t) => {
@@ -34,6 +35,12 @@ test('basic', async (t) => {
   const layer = await b.add(new URL(`file:${__dirname}/fixtures/3/`), 'entrypoint.js')
   t.ok(layer)
   t.ok(layer.toBuffer())
+
+  {
+    const key = z32.encode(b.key)
+    const mod = await BundleBee.import(store, `module+pear://0.1.${key}/entrypoint.js`)
+    t.is(mod, 'bundle-0')
+  }
 })
 
 test('sharing', async (t) => {

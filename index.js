@@ -4,6 +4,7 @@ const Module = require('bare-module')
 const { fileURLToPath } = require('url-file-url')
 const fs = require('fs')
 const b4a = require('b4a')
+const ModuleLink = require('./link')
 const ReadyResource = require('ready-resource')
 const Bee = require('hyperbee2')
 const c = require('compact-encoding')
@@ -39,6 +40,17 @@ module.exports = class BundleBee extends ReadyResource {
     }
 
     return b
+  }
+
+  static async import(store, link, opts = {}) {
+    const parsed = ModuleLink.parse(link)
+    const b = new BundleBee(store, { key: parsed.drive.key, ...opts })
+    await b.ready()
+
+    const mod = await b.load(null, parsed.pathname, parsed.drive.length, opts)
+    await b.close()
+
+    return mod.exports
   }
 
   get core() {

@@ -54,6 +54,7 @@
     "corestore": "^7.8.0",
     "hyperbee2": "^2.7.1",
     "hyperschema": "^1.19.1",
+    "pear-link": "^4.2.1",
     "ready-resource": "^1.2.0",
     "test-tmp": "^1.4.0",
     "url-file-url": "^1.0.5"
