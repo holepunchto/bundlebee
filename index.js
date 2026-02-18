@@ -9,9 +9,9 @@ const Bee = require('hyperbee2')
 const c = require('compact-encoding')
 const { getEncoding } = require('./schema')
 
-const Entry = getEncoding('@bundlebee/entry')
-const Manifest = getEncoding('@bundlebee/manifest')
-const PeerDeps = getEncoding('@bundlebee/peer-deps')
+const Entry = getEncoding('@hyperbundle/entry')
+const Manifest = getEncoding('@hyperbundle/manifest')
+const PeerDeps = getEncoding('@hyperbundle/peer-deps')
 
 const MANIFEST_KEY_VALUE = '#manifest'
 const MANIFEST_KEY = b4a.from(MANIFEST_KEY_VALUE)
@@ -21,7 +21,7 @@ const PEERDEPS_KEY = b4a.from(PEERDEPS_KEY_VALUE)
 // TODO
 // peer deps
 
-module.exports = class BundleBee extends ReadyResource {
+module.exports = class Hyperbundle extends ReadyResource {
   constructor(store, opts = {}) {
     super()
     this._bee = new Bee(store, opts)
@@ -34,7 +34,7 @@ module.exports = class BundleBee extends ReadyResource {
       files.length && typeof files[files.length - 1] === 'object' ? files.pop() : undefined
 
     const bundles = files.map((f) => Bundle.from(fs.readFileSync(f)))
-    const b = new BundleBee(store, opts)
+    const b = new Hyperbundle(store, opts)
 
     for (const bu of bundles) {
       await b._addBundle(bu)

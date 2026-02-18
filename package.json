@@ -1,7 +1,7 @@
 {
-  "name": "bundlebee",
+  "name": "hyperbundle",
   "version": "1.0.0",
-  "description": "bundlebee",
+  "description": "hyperbundle",
   "main": "index.js",
   "imports": {
     "fs": {
@@ -39,14 +39,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/holepunchto/bundlebee.git"
+    "url": "https://github.com/holepunchto/hyperbundle.git"
   },
   "author": "Holepunch Inc",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/holepunchto/bundlebee/issues"
+    "url": "https://github.com/holepunchto/hyperbundle/issues"
   },
-  "homepage": "https://github.com/holepunchto/bundlebee",
+  "homepage": "https://github.com/holepunchto/hyperbundle",
   "dependencies": {
     "b4a": "^1.7.4",
     "bare-bundle": "^1.10.0",

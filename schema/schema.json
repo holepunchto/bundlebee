@@ -3,14 +3,14 @@
   "schema": [
     {
       "name": "resolutions",
-      "namespace": "bundlebee",
+      "namespace": "hyperbundle",
       "record": true,
       "key": "string",
       "value": "string"
     },
     {
       "name": "entry",
-      "namespace": "bundlebee",
+      "namespace": "hyperbundle",
       "compact": false,
       "flagsPosition": -1,
       "fields": [
@@ -23,14 +23,14 @@
         {
           "name": "resolutions",
           "required": true,
-          "type": "@bundlebee/resolutions",
+          "type": "@hyperbundle/resolutions",
           "version": 1
         }
       ]
     },
     {
       "name": "manifest",
-      "namespace": "bundlebee",
+      "namespace": "hyperbundle",
       "compact": false,
       "flagsPosition": -1,
       "fields": [
@@ -44,7 +44,7 @@
     },
     {
       "name": "peer-deps",
-      "namespace": "bundlebee",
+      "namespace": "hyperbundle",
       "compact": false,
       "flagsPosition": -1,
       "fields": [

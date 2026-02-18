@@ -2,11 +2,11 @@ const { test } = require('brittle')
 const Corestore = require('corestore')
 const Hyperswarm = require('hyperswarm')
 const createTestnet = require('hyperdht/testnet')
-const BundleBee = require('..')
+const Hyperbundle = require('..')
 
 test('basic', async (t) => {
   const store = new Corestore(await t.tmp())
-  const b = await BundleBee.require(
+  const b = await Hyperbundle.require(
     store,
     './test/fixtures/0.bundle',
     './test/fixtures/1.bundle',
@@ -50,7 +50,7 @@ test('basic', async (t) => {
 
 test('add', async (t) => {
   const store = new Corestore(await t.tmp())
-  const b = new BundleBee(store)
+  const b = new Hyperbundle(store)
 
   const layer = await b.add(new URL(`file:${__dirname}/fixtures/3/`), 'entrypoint.js')
   t.ok(layer)
@@ -75,7 +75,7 @@ test('add', async (t) => {
 
 test('add - modules', async (t) => {
   const store = new Corestore(await t.tmp())
-  const b = new BundleBee(store)
+  const b = new Hyperbundle(store)
 
   const layer = await b.add(new URL(`file:${__dirname}/fixtures/3/`), 'entrypoint.js', {
     skipModules: false
@@ -105,7 +105,7 @@ test('add - modules', async (t) => {
 
 test('add - modules w/peer deps', async (t) => {
   const store = new Corestore(await t.tmp())
-  const b = new BundleBee(store)
+  const b = new Hyperbundle(store)
 
   const layer = await b.add(new URL(`file:${__dirname}/fixtures/3/`), 'entrypoint.js', {
     skipModules: false,
@@ -176,7 +176,7 @@ async function createBee(t, bootstrap, key, discoveryKey) {
     store.replicate(conn)
   })
 
-  const b = new BundleBee(store, { key, autoUpdate: true })
+  const b = new Hyperbundle(store, { key, autoUpdate: true })
   await b.ready()
 
   t.teardown(() => {

@@ -1,19 +1,19 @@
-# bundlebee
+# hyperbundle
 
 Bundle modules into [Hyperbee2](https://github.com/holepunchto/hyperbee2) for P2P sharing. Based on [bare-union-bundle](https://github.com/holepunchto/bare-union-bundle) but uses a Hyperbee2 as the backing store instead of flat bundle files, enabling replication and versioned checkouts over the network.
 
 ```
-npm install bundlebee
+npm install hyperbundle
 ```
 
 ## Usage
 
 ```js
-const BundleBee = require('bundlebee')
+const Hyperbundle = require('hyperbundle')
 const Corestore = require('corestore')
 
 const store = new Corestore('./storage')
-const b = new BundleBee(store)
+const b = new Hyperbundle(store)
 
 // Add a module entry point
 const bundle = await b.add(new URL('file:///path/to/project/'), 'index.js')
@@ -25,13 +25,13 @@ const mod = await b.load(new URL('file:///path/to/project/'), '/index.js')
 ### Loading from existing bundle files
 
 ```js
-const b = await BundleBee.require(store, './0.bundle', './1.bundle')
+const b = await Hyperbundle.require(store, './0.bundle', './1.bundle')
 ```
 
 ### Getting existing bundles
 
 ```js
-const b = new BundleBee(store, { key: myKey })
+const b = new Hyperbundle(store, { key: myKey })
 
 // get remote bundle
 const mod = await b.load(new URL('file:///path/to/project/'), '/index.js')
@@ -42,13 +42,13 @@ const { source, resolutions } = await b1.get('/entrypoint.js', 1)
 
 ## API
 
-#### `const b = new BundleBee(store, [opts])`
+#### `const b = new Hyperbundle(store, [opts])`
 
-Create a new BundleBee instance backed by a Hyperbee2. `store` is passed directly to the `hyperbee2` constructor. `opts` are forwarded to Hyperbee2.
+Create a new Hyperbundle instance backed by a Hyperbee2. `store` is passed directly to the `hyperbee2` constructor. `opts` are forwarded to Hyperbee2.
 
-#### `const b = await BundleBee.require(store, ...files, [opts])`
+#### `const b = await Hyperbundle.require(store, ...files, [opts])`
 
-Static helper that creates a BundleBee and imports one or more `.bundle` files (from [bare-bundle](https://github.com/holepunchto/bare-bundle)) into the bee. `opts` are forwarded to the BundleBee constructor.
+Static helper that creates a Hyperbundle and imports one or more `.bundle` files (from [bare-bundle](https://github.com/holepunchto/bare-bundle)) into the bee. `opts` are forwarded to the Hyperbundle constructor.
 
 #### `await b.ready()`
 
@@ -91,7 +91,7 @@ Load `entrypoint` from the bee using `bare-module`. If `checkout` is provided, a
 
 ## How it works
 
-BundleBee uses `bare-module-traverse` to walk a module graph from an entry point, then stores each file's source and its resolution map into Hyperbee2 keyed by file path. On load, it reads all entries from the bee, wires up resolutions, and uses `bare-module` to evaluate the module graph. Because the backing store is a Hyperbee (built on Hypercore), the bundle can be replicated to peers and checked out at any historical version.
+Hyperbundle uses `bare-module-traverse` to walk a module graph from an entry point, then stores each file's source and its resolution map into Hyperbee2 keyed by file path. On load, it reads all entries from the bee, wires up resolutions, and uses `bare-module` to evaluate the module graph. Because the backing store is a Hyperbee (built on Hypercore), the bundle can be replicated to peers and checked out at any historical version.
 
 ## License
 

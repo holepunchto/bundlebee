@@ -11,10 +11,10 @@ const VERSION = 2
 // eslint-disable-next-line no-unused-vars
 let version = VERSION
 
-// @bundlebee/resolutions
+// @hyperbundle/resolutions
 const encoding0 = c.record(c.string, c.string)
 
-// @bundlebee/entry
+// @hyperbundle/entry
 const encoding1 = {
   preencode(state, m) {
     c.buffer.preencode(state, m.source)
@@ -35,7 +35,7 @@ const encoding1 = {
   }
 }
 
-// @bundlebee/manifest
+// @hyperbundle/manifest
 const encoding2 = {
   preencode(state, m) {
     c.uint.preencode(state, m.abi)
@@ -52,10 +52,10 @@ const encoding2 = {
   }
 }
 
-// @bundlebee/peer-deps.packages
+// @hyperbundle/peer-deps.packages
 const encoding3_0 = c.array(c.string)
 
-// @bundlebee/peer-deps
+// @hyperbundle/peer-deps
 const encoding3 = {
   preencode(state, m) {
     encoding3_0.preencode(state, m.packages)
@@ -95,13 +95,13 @@ function getEnum(name) {
 
 function getEncoding(name) {
   switch (name) {
-    case '@bundlebee/resolutions':
+    case '@hyperbundle/resolutions':
       return encoding0
-    case '@bundlebee/entry':
+    case '@hyperbundle/entry':
       return encoding1
-    case '@bundlebee/manifest':
+    case '@hyperbundle/manifest':
       return encoding2
-    case '@bundlebee/peer-deps':
+    case '@hyperbundle/peer-deps':
       return encoding3
     default:
       throw new Error('Encoder not found ' + name)

@@ -1,9 +1,9 @@
-declare module 'bundlebee' {
+declare module 'hyperbundle' {
   import ReadyResource from 'ready-resource'
   import Bundle from 'bare-bundle'
   import Bee from 'hyperbee2'
 
-  interface BundleBeeOptions {
+  interface HyperbundleOptions {
     [key: string]: any
   }
 
@@ -21,14 +21,14 @@ declare module 'bundlebee' {
     skipModules?: boolean
   }
 
-  class BundleBee extends ReadyResource {
-    constructor(store: any, opts?: BundleBeeOptions) // lunte-disable-line
+  class Hyperbundle extends ReadyResource {
+    constructor(store: any, opts?: HyperbundleOptions) // lunte-disable-line
 
     static require(
       store: any,
-      ...args: [...files: string[], opts: BundleBeeOptions]
-    ): Promise<BundleBee>
-    static require(store: any, ...files: string[]): Promise<BundleBee>
+      ...args: [...files: string[], opts: HyperbundleOptions]
+    ): Promise<Hyperbundle>
+    static require(store: any, ...files: string[]): Promise<Hyperbundle>
 
     get(key: string, checkout?: number): Promise<Entry | null>
 
@@ -39,5 +39,5 @@ declare module 'bundlebee' {
     load(root: URL, entrypoint: string, checkout?: number, opts?: LoadOptions): Promise<any>
   }
 
-  export = BundleBee
+  export = Hyperbundle
 }
