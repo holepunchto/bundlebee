@@ -38,7 +38,7 @@ test('basic', async (t) => {
 
   {
     const key = z32.encode(b.key)
-    const mod = await BundleBee.import(store, `module+pear://0.1.${key}/entrypoint.js`)
+    const mod = await BundleBee.import(store, `module+pear://0.1.${key}/entrypoint.js?b`)
     t.is(mod, 'bundle-0')
   }
 
@@ -55,18 +55,36 @@ test('basic', async (t) => {
   }
 })
 
+test('add', async (t) => {
+  const store = new Corestore(await t.tmp())
+  const b = new BundleBee(store)
+
+  const layer = await b.add(new URL(`file:${__dirname}/fixtures/3/`), 'entrypoint.js')
+  t.ok(layer)
+
+  const { source, resolutions } = await b.get('/entrypoint.js')
+  t.is(
+    source.toString().trim().split('\n').pop(),
+    `module.exports = () => b4a.from('bundle-2').toString('utf-8')`
+  )
+  t.alike(
+    resolutions,
+    Object.assign(Object.create(null), {
+      '#package': '/package.json',
+      b4a: '/node_modules/b4a/index.js'
+    })
+  )
+
+  const mod = await b.load(new URL(`file:${__dirname}/fixtures/3/`), '/entrypoint.js')
+  t.is(mod.exports(), 'bundle-2')
+})
+
 test('sharing', async (t) => {
   const { bootstrap } = await createTestnet(t)
   const b1 = await createBee(t, bootstrap)
 
   const layer = await b1.add(new URL(`file:${__dirname}/fixtures/3/`), 'entrypoint.js')
   t.ok(layer)
-
-  {
-    const { source, resolutions } = await b1.get('/entrypoint.js')
-    t.is(source.toString().trim(), `module.exports = 'bundle-2'`)
-    t.alike(resolutions, Object.assign(Object.create(null), { '#package': '/package.json' }))
-  }
 
   const b2 = await createBee(t, bootstrap, b1.key, b1.discoveryKey)
 

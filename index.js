@@ -40,6 +40,7 @@ module.exports = class BundleBee extends ReadyResource {
 
   static async import(store, link, opts = {}) {
     const parsed = ModuleLink.parse(link)
+    // TODO check parsed.search for import method. ?b === bundle
     const b = new BundleBee(store, { key: parsed.drive.key, ...opts })
     await b.ready()
 
