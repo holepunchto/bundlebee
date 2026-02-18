@@ -14,11 +14,6 @@ const Entry = getEncoding('@bundlebee/entry')
 const Manifest = getEncoding('@bundlebee/manifest')
 
 // TODO
-// metadata entry on the bee - such as abi mapping
-// manifest = abi:25
-// can stream history to see the old ones
-
-// TODO
 // peer deps
 
 module.exports = class BundleBee extends ReadyResource {
