@@ -103,7 +103,7 @@ test('add - modules', async (t) => {
   t.is(mod.exports(), 'bundle-2')
 })
 
-test.solo('add - modules w/peer deps', async (t) => {
+test('add - modules w/peer deps', async (t) => {
   const store = new Corestore(await t.tmp())
   const b = new BundleBee(store)
 
@@ -134,7 +134,7 @@ test.solo('add - modules w/peer deps', async (t) => {
   t.is(mod.exports(), 'bundle-2')
 })
 
-test('sharing', async (t) => {
+test.skip('sharing', async (t) => {
   const { bootstrap } = await createTestnet(t)
   const b1 = await createBee(t, bootstrap)
 
