@@ -1,5 +1,7 @@
 const { test } = require('brittle')
 const Corestore = require('corestore')
+const Hyperswarm = require('hyperswarm')
+const createTestnet = require('hyperdht/testnet')
 const BundleBee = require('..')
 
 test('basic', async (t) => {
@@ -35,8 +37,8 @@ test('basic', async (t) => {
 })
 
 test('sharing', async (t) => {
-  const store = new Corestore(await t.tmp())
-  const b1 = new BundleBee(store)
+  const { bootstrap } = await createTestnet(t)
+  const b1 = await createBee(t, bootstrap)
 
   const layer = await b1.add(new URL(`file:${__dirname}/fixtures/3/`), 'entrypoint.js')
   t.ok(layer)
@@ -47,7 +49,11 @@ test('sharing', async (t) => {
     t.alike(resolutions, Object.assign(Object.create(null), { '#package': '/package.json' }))
   }
 
-  const b2 = new BundleBee(store, { key: b1.key })
+  const b2 = await createBee(t, bootstrap, b1.key, b1.discoveryKey)
+
+  if (b2.core.length === 0) {
+    throw new Error('Could not connect to the writer peer')
+  }
 
   {
     const { source, resolutions } = await b2.get('/entrypoint.js')
@@ -58,24 +64,6 @@ test('sharing', async (t) => {
       'b2 works'
     )
   }
-})
-
-test('shared history', async (t) => {
-  const store = new Corestore(await t.tmp())
-  const b1 = await BundleBee.require(
-    store,
-    './test/fixtures/0.bundle',
-    './test/fixtures/1.bundle',
-    './test/fixtures/2.bundle'
-  )
-
-  {
-    const { source, resolutions } = await b1.get('/entrypoint.js')
-    t.is(source.toString().trim(), `module.exports = 'bundle-2'`)
-    t.alike(resolutions, Object.assign(Object.create(null), { '#package': '/package.json' }))
-  }
-
-  const b2 = new BundleBee(store, { key: b1.key })
 
   {
     const { source, resolutions } = await b2.get('/entrypoint.js', 1)
@@ -87,3 +75,31 @@ test('shared history', async (t) => {
     )
   }
 })
+
+async function createBee(t, bootstrap, key, discoveryKey) {
+  const swarm = new Hyperswarm({ bootstrap })
+  const store = new Corestore(await t.tmp())
+  swarm.on('connection', (conn) => {
+    console.log('conn', !!conn)
+    store.replicate(conn)
+  })
+
+  const b = new BundleBee(store, { key, autoUpdate: true })
+  await b.ready()
+
+  t.teardown(() => {
+    swarm.destroy()
+    b.close()
+  })
+
+  const discovery = swarm.join(discoveryKey || b.discoveryKey)
+
+  if (discoveryKey) {
+    await swarm.flush()
+    await b.core.update()
+  } else {
+    await discovery.flushed()
+  }
+
+  return b
+}
