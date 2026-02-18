@@ -93,12 +93,11 @@ async function createBee(t, bootstrap, key, discoveryKey) {
   })
 
   const discovery = swarm.join(discoveryKey || b.discoveryKey)
+  await discovery.flushed()
 
   if (discoveryKey) {
     await swarm.flush()
     await b.core.update()
-  } else {
-    await discovery.flushed()
   }
 
   return b
