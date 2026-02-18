@@ -36,14 +36,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/holepunchto/repo-template.git"
+    "url": "https://github.com/holepunchto/bundlebee.git"
   },
   "author": "Holepunch Inc",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/holepunchto/repo-template/issues"
+    "url": "https://github.com/holepunchto/bundlebee/issues"
   },
-  "homepage": "https://github.com/holepunchto/repo-template",
+  "homepage": "https://github.com/holepunchto/bundlebee",
   "dependencies": {
     "b4a": "^1.7.4",
     "bare-bundle": "^1.10.0",
