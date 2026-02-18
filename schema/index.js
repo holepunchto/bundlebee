@@ -32,6 +32,23 @@ const encoding0 = {
   }
 }
 
+// @bundlebee/manifest
+const encoding1 = {
+  preencode(state, m) {
+    c.uint.preencode(state, m.abi)
+  },
+  encode(state, m) {
+    c.uint.encode(state, m.abi)
+  },
+  decode(state) {
+    const r0 = c.uint.decode(state)
+
+    return {
+      abi: r0
+    }
+  }
+}
+
 function setVersion(v) {
   version = v
 }
@@ -57,6 +74,8 @@ function getEncoding(name) {
   switch (name) {
     case '@bundlebee/entry':
       return encoding0
+    case '@bundlebee/manifest':
+      return encoding1
     default:
       throw new Error('Encoder not found ' + name)
   }

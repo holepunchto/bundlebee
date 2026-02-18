@@ -20,6 +20,17 @@ export const schema = Hyperschema.from('./schema', { import: false })
       }
     ]
   })
+
+  ns.register({
+    name: 'manifest',
+    fields: [
+      {
+        name: 'abi',
+        type: 'uint',
+        required: true
+      }
+    ]
+  })
 }
 
 Hyperschema.toDisk(schema, { esm: false })

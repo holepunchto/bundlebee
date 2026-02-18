@@ -41,6 +41,11 @@ test('basic', async (t) => {
     const mod = await BundleBee.import(store, `module+pear://0.1.${key}/entrypoint.js`)
     t.is(mod, 'bundle-0')
   }
+
+  {
+    const manifest = await b.manifest()
+    t.alike(manifest, { abi: 4 })
+  }
 })
 
 test('sharing', async (t) => {

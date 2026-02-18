@@ -20,6 +20,20 @@
           "version": 1
         }
       ]
+    },
+    {
+      "name": "manifest",
+      "namespace": "bundlebee",
+      "compact": false,
+      "flagsPosition": -1,
+      "fields": [
+        {
+          "name": "abi",
+          "required": true,
+          "type": "uint",
+          "version": 1
+        }
+      ]
     }
   ]
 }

@@ -11,6 +11,7 @@ const c = require('compact-encoding')
 const { getEncoding } = require('./schema')
 
 const Entry = getEncoding('@bundlebee/entry')
+const Manifest = getEncoding('@bundlebee/manifest')
 
 // TODO
 // metadata entry on the bee - such as abi mapping
@@ -73,6 +74,17 @@ module.exports = class BundleBee extends ReadyResource {
     return this._bee.ready()
   }
 
+  async manifest(checkout) {
+    if (!this.opened) await this.ready()
+
+    const b = checkout ? await this.checkout(checkout) : this._bee
+
+    const entry = await b.get(b4a.from('manifest'))
+    if (!entry) return null
+
+    return c.decode(Manifest, entry.value)
+  }
+
   async get(key, checkout) {
     if (!this.opened) await this.ready()
 
@@ -112,6 +124,8 @@ module.exports = class BundleBee extends ReadyResource {
 
     for await (const data of b.createReadStream()) {
       const id = data.key.toString()
+      if (id === 'manifest') continue
+
       const { resolutions, source } = c.decode(Entry, data.value)
 
       loadedData.set(id, source)
@@ -194,6 +208,17 @@ module.exports = class BundleBee extends ReadyResource {
         })
       )
     }
+
+    const previousManifest = await this.manifest()
+    const nextAbi = previousManifest ? previousManifest.abi + 1 : 1
+
+    w.tryPut(
+      b4a.from('manifest'),
+      c.encode(Manifest, {
+        abi: nextAbi
+      })
+    )
+
     await w.flush()
   }
 }
