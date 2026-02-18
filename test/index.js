@@ -76,8 +76,7 @@ test('add - modules', async (t) => {
     skipModules: false
   })
   t.ok(layer)
-  console.log(layer)
-  t.ok(layer.files['/node_modules/b4a/index.js'])
+  t.ok(Object.keys(layer.files).find((k) => k.endsWith('/node_modules/b4a/index.js')))
 
   const { source, resolutions } = await b.get('/entrypoint.js')
   t.is(
@@ -103,7 +102,7 @@ test('add - modules w/peer deps', async (t) => {
     peerDependencies: ['b4a']
   })
   t.ok(layer)
-  t.absent(layer.files['/node_modules/b4a/index.js'])
+  t.absent(Object.keys(layer.files).find((k) => k.endsWith('/node_modules/b4a/index.js')))
 
   const { source, resolutions } = await b.get('/entrypoint.js')
   t.is(
