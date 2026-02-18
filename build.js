@@ -6,6 +6,13 @@ export const schema = Hyperschema.from('./schema', { import: false })
   const ns = schema.namespace('bundlebee')
 
   ns.register({
+    name: 'resolutions',
+    record: true,
+    key: 'string',
+    value: 'string'
+  })
+
+  ns.register({
     name: 'entry',
     fields: [
       {
@@ -15,8 +22,8 @@ export const schema = Hyperschema.from('./schema', { import: false })
       },
       {
         name: 'resolutions',
-        type: 'stringRecord',
-        required: true
+        required: true,
+        type: '@bundlebee/resolutions'
       }
     ]
   })

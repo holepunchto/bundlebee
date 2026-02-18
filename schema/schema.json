@@ -2,6 +2,13 @@
   "version": 1,
   "schema": [
     {
+      "name": "resolutions",
+      "namespace": "bundlebee",
+      "record": true,
+      "key": "string",
+      "value": "string"
+    },
+    {
       "name": "entry",
       "namespace": "bundlebee",
       "compact": false,
@@ -16,7 +23,7 @@
         {
           "name": "resolutions",
           "required": true,
-          "type": "stringRecord",
+          "type": "@bundlebee/resolutions",
           "version": 1
         }
       ]

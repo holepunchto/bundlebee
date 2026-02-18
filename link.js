@@ -2,7 +2,6 @@ const { constructor: PearLink } = require('pear-link')
 
 class ModuleLink extends PearLink {
   serialize(o) {
-    console.log(o)
     if (o.protocol?.startsWith('module:') === false) return super.serialize(o)
     o.protocol = o.protocol
     o.origin = o.origin

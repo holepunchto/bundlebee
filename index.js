@@ -208,6 +208,7 @@ module.exports = class BundleBee extends ReadyResource {
     for (const f in bundle.files) {
       // TODO: make a schema for resolutions value
       // source + resolutions map
+
       w.tryPut(
         b4a.from(f),
         c.encode(Entry, {
