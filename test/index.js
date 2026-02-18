@@ -42,9 +42,16 @@ test('basic', async (t) => {
     t.is(mod, 'bundle-0')
   }
 
+  // manifest
   {
     const manifest = await b.manifest()
     t.alike(manifest, { abi: 4 })
+
+    const length = await b.findABI(2)
+    t.is(length, 2)
+
+    const mod = await b.load(new URL(`file:${__dirname}/fixtures/3/`), '/entrypoint.js', length)
+    t.is(mod.exports, 'bundle-1')
   }
 })
 

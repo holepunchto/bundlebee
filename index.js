@@ -96,6 +96,19 @@ module.exports = class BundleBee extends ReadyResource {
     return c.decode(Entry, entry.value)
   }
 
+  async findABI(abi) {
+    for await (const d of this._bee.createChangesStream({
+      gt: b4a.from('manifest'),
+      lt: b4a.from('manifest')
+    })) {
+      // always last in the batch
+      const manifest = c.decode(Manifest, d.batch[0].keys.pop().value)
+      if (manifest.abi !== abi) continue
+
+      return d.head.length
+    }
+  }
+
   async checkout(length) {
     if (!this.opened) await this.ready()
     if (!length) length = this._bee.head().length
