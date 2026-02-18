@@ -76,6 +76,7 @@ test('add - modules', async (t) => {
     skipModules: false
   })
   t.ok(layer)
+  console.log(layer)
   t.ok(layer.files['/node_modules/b4a/index.js'])
 
   const { source, resolutions } = await b.get('/entrypoint.js')
