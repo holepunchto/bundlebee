@@ -105,10 +105,11 @@ test('add - modules', async (t) => {
 
 test.solo('add - modules w/peer deps', async (t) => {
   const store = new Corestore(await t.tmp())
-  const b = new BundleBee(store, { peerDependencies: ['b4a'] })
+  const b = new BundleBee(store)
 
   const layer = await b.add(new URL(`file:${__dirname}/fixtures/3/`), 'entrypoint.js', {
-    skipModules: false
+    skipModules: false,
+    peerDependencies: ['b4a']
   })
   t.ok(layer)
   t.absent(layer.files['/node_modules/b4a/index.js'])
@@ -121,7 +122,8 @@ test.solo('add - modules w/peer deps', async (t) => {
   t.alike(
     resolutions,
     Object.assign(Object.create(null), {
-      '#package': '/package.json'
+      '#package': '/package.json',
+      b4a: '/node_modules/b4a/index.js'
     })
   )
 
