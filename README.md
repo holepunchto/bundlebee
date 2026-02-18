@@ -40,16 +40,6 @@ const mod = await b.load(new URL('file:///path/to/project/'), '/index.js')
 const { source, resolutions } = await b1.get('/entrypoint.js', 1)
 ```
 
-### Simple import with key
-
-```js
-// get latest bundle
-const mod = await BundleBee.import(store, `module+pear://${key}/entrypoint.js`)
-
-// get remote bundle, 1 === the length you want to checkout
-const mod = await BundleBee.import(store, `module+pear://0.1.${key}/entrypoint.js`)
-```
-
 ## API
 
 #### `const b = new BundleBee(store, [opts])`
