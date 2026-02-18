@@ -11,6 +11,7 @@ const { getEncoding } = require('./schema')
 
 const Entry = getEncoding('@bundlebee/entry')
 const Manifest = getEncoding('@bundlebee/manifest')
+const PeerDeps = getEncoding('@bundlebee/peer-deps')
 
 // TODO
 // peer deps
@@ -62,10 +63,23 @@ module.exports = class BundleBee extends ReadyResource {
 
     const b = checkout ? await this.checkout(checkout) : this._bee
 
-    const entry = await b.get(b4a.from('manifest'))
+    const entry = await b.get(b4a.from('#manifest'))
     if (!entry) return null
 
     return c.decode(Manifest, entry.value)
+  }
+
+  async peerDependencies(checkout) {
+    if (!this.opened) await this.ready()
+
+    const b = checkout ? await this.checkout(checkout) : this._bee
+
+    const entry = await b.get(b4a.from('#peer-deps'))
+    if (!entry) return null
+
+    const { packages } = c.decode(PeerDeps, entry.value)
+
+    return new Set(packages)
   }
 
   async get(key, checkout) {
@@ -81,8 +95,8 @@ module.exports = class BundleBee extends ReadyResource {
 
   async findABI(abi) {
     for await (const d of this._bee.createChangesStream({
-      gt: b4a.from('manifest'),
-      lt: b4a.from('manifest')
+      gt: b4a.from('#manifest'),
+      lt: b4a.from('#manifest')
     })) {
       // always last in the batch
       const manifest = c.decode(Manifest, d.batch[0].keys.pop().value)
@@ -118,9 +132,11 @@ module.exports = class BundleBee extends ReadyResource {
     const bundleCache = Object.create(null)
     const allResolutions = Object.create(null)
 
+    const peerDeps = await this.peerDependencies(checkout)
+
     for await (const data of b.createReadStream()) {
       const id = data.key.toString()
-      if (id === 'manifest') continue
+      if (id === '#manifest' || id === '#peer-deps') continue
 
       const { resolutions, source } = c.decode(Entry, data.value)
 
@@ -128,7 +144,9 @@ module.exports = class BundleBee extends ReadyResource {
 
       const m = {}
       for (const [k, v] of Object.entries(resolutions)) {
-        const nm = v.startsWith('/node_modules') && skipModules ? findModule(cache, v, root) : null
+        const skip = peerDeps && peerDeps.has(k)
+        const nm =
+          (v.startsWith('/node_modules') && skipModules) || skip ? findModule(cache, v, root) : null
         if (nm) {
           m[k] = 'bundle://host' + v
           bundleCache[m[k]] = nm
@@ -146,9 +164,10 @@ module.exports = class BundleBee extends ReadyResource {
     })
   }
 
-  async add(root, entry, { skipModules = true } = {}) {
+  async add(root, entry, { skipModules = true, peerDependencies } = {}) {
     if (!this.opened) await this.ready()
     if (!root.pathname.endsWith('/')) root = new URL('./', root)
+    if (peerDependencies) peerDependencies = new Set(peerDependencies)
 
     const nodeModules = new URL('./node_modules', root)
     const bundle = new Bundle()
@@ -161,7 +180,15 @@ module.exports = class BundleBee extends ReadyResource {
       readModule,
       listPrefix
     )) {
-      if (dependency.url.href.startsWith(nodeModules.href) && skipModules) continue
+      if (dependency.url.href.startsWith(nodeModules.href)) {
+        if (skipModules) continue
+        if (peerDependencies) {
+          const moduleName = dependency.url.pathname
+            .replace(root.pathname + 'node_modules/', '')
+            .split('/')[0]
+          if (peerDependencies.has(moduleName)) continue
+        }
+      }
 
       const p = dependency.url.pathname.replace(root.pathname, '/')
       const imps = {}
@@ -184,12 +211,12 @@ module.exports = class BundleBee extends ReadyResource {
 
     bundle.resolutions = resolutions
 
-    await this._addBundle(bundle)
+    await this._addBundle(bundle, peerDependencies)
 
     return bundle
   }
 
-  async _addBundle(bundle) {
+  async _addBundle(bundle, peerDependencies) {
     if (!this.opened) await this.ready()
 
     const w = this._bee.write()
@@ -210,11 +237,20 @@ module.exports = class BundleBee extends ReadyResource {
     const nextAbi = previousManifest ? previousManifest.abi + 1 : 1
 
     w.tryPut(
-      b4a.from('manifest'),
+      b4a.from('#manifest'),
       c.encode(Manifest, {
         abi: nextAbi
       })
     )
+
+    if (peerDependencies) {
+      w.tryPut(
+        b4a.from('#peer-deps'),
+        c.encode(PeerDeps, {
+          packages: [...peerDependencies]
+        })
+      )
+    }
 
     await w.flush()
   }

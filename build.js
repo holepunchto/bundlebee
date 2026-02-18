@@ -38,6 +38,18 @@ export const schema = Hyperschema.from('./schema', { import: false })
       }
     ]
   })
+
+  ns.register({
+    name: 'peer-deps',
+    fields: [
+      {
+        name: 'packages',
+        type: 'string',
+        array: true,
+        required: true
+      }
+    ]
+  })
 }
 
 Hyperschema.toDisk(schema, { esm: false })
