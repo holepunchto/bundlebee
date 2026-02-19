@@ -31,9 +31,20 @@ module.exports = class Hyperbundle extends ReadyResource {
 
   static async require(store, ...files) {
     const opts =
-      files.length && typeof files[files.length - 1] === 'object' ? files.pop() : undefined
+      files.length &&
+      typeof files[files.length - 1] === 'object' &&
+      !('bundle' in files[files.length - 1])
+        ? files.pop()
+        : undefined
 
-    const bundles = files.map(Hyperbundle.bundleFrom)
+    const bundles = files.map((f) => {
+      const data = typeof f === 'object' ? f : { bundle: f }
+
+      return {
+        ...data,
+        bundle: Hyperbundle.bundleFrom(data.bundle)
+      }
+    })
     const b = new Hyperbundle(store, opts)
 
     for (const bu of bundles) {
@@ -123,10 +134,18 @@ module.exports = class Hyperbundle extends ReadyResource {
       gt: MANIFEST_KEY,
       lt: MANIFEST_KEY
     })) {
-      const record = d.batch[0].keys?.find((k) => k.key.toString() === MANIFEST_KEY_VALUE)
+      // const record = d.batch.find((b) =>
+      //   b.keys?.find((k) => k.key.toString() === MANIFEST_KEY_VALUE)
+      // )
+      let record = null
+      for (const b of d.batch) {
+        if (!b.keys) continue
+        const r = b.keys.find((k) => k.key.toString() === MANIFEST_KEY_VALUE)
+        if (!r) continue
+        record = r
+      }
       if (!record) continue
 
-      // always last in the batch
       const manifest = c.decode(Manifest, record.value)
       if (manifest.abi !== abi) continue
 
@@ -239,30 +258,35 @@ module.exports = class Hyperbundle extends ReadyResource {
 
     bundle.resolutions = resolutions
 
-    await this._addBundle(bundle, peerDependencies)
+    await this._addBundle({ bundle }, peerDependencies)
 
     return bundle
   }
 
-  async _addBundle(bundle, peerDependencies) {
+  async _addBundle(data, peerDependencies) {
     if (!this.opened) await this.ready()
 
+    let nextAbi = data.abi
+    const previousManifest = await this.manifest()
+    if (nextAbi && previousManifest && nextAbi <= previousManifest.abi) {
+      throw new Error(`ABI ${nextAbi} <= to current ABI ${previousManifest.abi}`)
+    } else if (!nextAbi) {
+      nextAbi = previousManifest ? previousManifest.abi + 1 : 1
+    }
+
     const w = this._bee.write()
-    for (const f in bundle.files) {
+    for (const f in data.bundle.files) {
       // TODO: make a schema for resolutions value
       // source + resolutions map
 
       w.tryPut(
         b4a.from(f),
         c.encode(Entry, {
-          source: bundle.files[f].read(),
-          resolutions: bundle.resolutions[f]
+          source: data.bundle.files[f].read(),
+          resolutions: data.bundle.resolutions[f]
         })
       )
     }
-
-    const previousManifest = await this.manifest()
-    const nextAbi = previousManifest ? previousManifest.abi + 1 : 1
 
     if (peerDependencies) {
       w.tryPut(
