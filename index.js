@@ -33,7 +33,7 @@ module.exports = class Hyperbundle extends ReadyResource {
     const opts =
       files.length && typeof files[files.length - 1] === 'object' ? files.pop() : undefined
 
-    const bundles = files.map((f) => Bundle.from(fs.readFileSync(f)))
+    const bundles = files.map(Hyperbundle.bundleFrom)
     const b = new Hyperbundle(store, opts)
 
     for (const bu of bundles) {
@@ -41,6 +41,15 @@ module.exports = class Hyperbundle extends ReadyResource {
     }
 
     return b
+  }
+
+  static bundleFrom(f) {
+    if (f.endsWith('.js')) {
+      const bundle = require(f)
+      return bundle
+    }
+
+    return Bundle.from(fs.readFileSync(f))
   }
 
   get core() {
@@ -61,6 +70,17 @@ module.exports = class Hyperbundle extends ReadyResource {
 
   _open() {
     return this._bee.ready()
+  }
+
+  async *createEntryStream(checkout) {
+    const b = checkout ? await this.checkout(checkout) : this._bee
+
+    for await (const data of b.createReadStream()) {
+      const id = data.key.toString()
+      if (id === MANIFEST_KEY_VALUE || id === PEERDEPS_KEY_VALUE) continue
+      const entry = c.decode(Entry, data.value)
+      yield { ...entry, id }
+    }
   }
 
   async manifest(checkout) {

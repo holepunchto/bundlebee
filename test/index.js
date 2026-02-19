@@ -48,6 +48,33 @@ test('basic', async (t) => {
   }
 })
 
+test('entry stream', async (t) => {
+  const store = new Corestore(await t.tmp())
+  const b = await Hyperbundle.require(
+    store,
+    './test/fixtures/0.bundle',
+    './test/fixtures/1.bundle',
+    './test/fixtures/2.bundle'
+  )
+
+  const entries = []
+
+  for await (const e of b.createEntryStream()) {
+    entries.push(e)
+  }
+
+  const packageJson = entries.find((e) => e.id === '/package.json')
+  const entrypointJs = entries.find((e) => e.id === '/entrypoint.js')
+
+  t.ok(packageJson)
+  t.ok(packageJson.source)
+  t.ok(packageJson.resolutions)
+
+  t.ok(entrypointJs)
+  t.ok(entrypointJs.source)
+  t.ok(entrypointJs.resolutions)
+})
+
 test('add', async (t) => {
   const store = new Corestore(await t.tmp())
   const b = new Hyperbundle(store)
