@@ -40,9 +40,19 @@ module.exports = class Hyperbundle extends ReadyResource {
     const b = new Hyperbundle(store, opts)
     const manifest = await b.manifest()
 
+    // skip requires an existing manifest
+    const skipExistingABIs = opts && !!opts.skipExistingABIs && !!manifest
+
+    // Early exit
+    const lastAbi =
+      files.length && typeof files[files.length - 1] === 'object'
+        ? files[files.length - 1].abi || 0
+        : 0
+    if (skipExistingABIs && lastAbi <= manifest.abi) return b
+
     const bundles = files.reduce((all, f) => {
       const data = typeof f === 'object' ? f : { bundle: f, abi: 0 }
-      if (opts && opts.skipExistingABIs && manifest && data.abi <= manifest.abi) return all
+      if (skipExistingABIs && data.abi <= manifest.abi) return all
 
       all.push({
         ...data,
