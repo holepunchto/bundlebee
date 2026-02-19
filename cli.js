@@ -7,6 +7,7 @@ const path = require('path')
 const fs = require('fs')
 const z32 = require('z32')
 const os = require('os')
+const Hyperswarm = require('hyperswarm')
 const c = require('compact-encoding')
 const { getEncoding } = require('./schema')
 
@@ -127,6 +128,7 @@ const listCmd = command(
   flag('--name|-n [name]', 'name of the hyperbee'),
   flag('--key|-k [key]', 'source Hyperbundle key to list from'),
   flag('--version|-v [length]', 'list at a specific hyperbee length'),
+  flag('--seed', 'keep open for seeding and join swarm'),
   validate(({ flags }) => {
     if (!flags.name && !flags.key) return 'either --name or --key is required'
     if (flags.version && (isNaN(Number(flags.version)) || Number(flags.version) <= 0)) {
@@ -148,14 +150,26 @@ const listCmd = command(
     let count = 0
     for await (const data of bee.createReadStream()) {
       const id = data.key.toString()
+      if (id === '#manifest' || id === '#peer-deps') continue
       const entry = c.decode(Entry, data.value)
       console.log(id, `(${entry.source.length} bytes)`)
       count++
     }
 
     console.log('\n' + count, 'file(s)')
+    console.log('\nKey:', z32.encode(b.key))
 
-    await b.close()
+    if (listCmd.flags.seed) {
+      const swarm = new Hyperswarm()
+      swarm.on('connection', (conn) => {
+        console.log('conn', !!conn)
+        store.replicate(conn)
+      })
+      const discovery = swarm.join(b.discoveryKey)
+      await discovery.flushed()
+    } else {
+      await b.close()
+    }
   }
 )
 
