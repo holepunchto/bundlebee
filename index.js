@@ -37,15 +37,20 @@ module.exports = class Hyperbundle extends ReadyResource {
         ? files.pop()
         : undefined
 
-    const bundles = files.map((f) => {
-      const data = typeof f === 'object' ? f : { bundle: f }
+    const b = new Hyperbundle(store, opts)
+    const manifest = await b.manifest()
 
-      return {
+    const bundles = files.reduce((all, f) => {
+      const data = typeof f === 'object' ? f : { bundle: f, abi: 0 }
+      if (opts && opts.skipExistingABIs && manifest && data.abi <= manifest.abi) return all
+
+      all.push({
         ...data,
         bundle: Hyperbundle.bundleFrom(data.bundle)
-      }
-    })
-    const b = new Hyperbundle(store, opts)
+      })
+
+      return all
+    }, [])
 
     for (const bu of bundles) {
       await b._addBundle(bu)
