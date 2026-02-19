@@ -42,6 +42,7 @@ module.exports = class Hyperbundle extends ReadyResource {
 
     // skip requires an existing manifest
     const skipExistingABIs = opts && !!opts.skipExistingABIs && !!manifest
+    const peerDependencies = opts?.peerDependencies
 
     // Early exit
     const lastAbi =
@@ -63,7 +64,7 @@ module.exports = class Hyperbundle extends ReadyResource {
     }, [])
 
     for (const bu of bundles) {
-      await b._addBundle(bu)
+      await b._addBundle(bu, peerDependencies)
     }
 
     return b
@@ -149,9 +150,6 @@ module.exports = class Hyperbundle extends ReadyResource {
       gt: MANIFEST_KEY,
       lt: MANIFEST_KEY
     })) {
-      // const record = d.batch.find((b) =>
-      //   b.keys?.find((k) => k.key.toString() === MANIFEST_KEY_VALUE)
-      // )
       let record = null
       for (const b of d.batch) {
         if (!b.keys) continue
@@ -402,5 +400,5 @@ function findModule(cache, v, root) {
     if (nm) return nm
   }
 
-  return null
+  throw new Error(`failed to find module: ${v}`)
 }
