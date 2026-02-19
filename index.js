@@ -24,7 +24,7 @@ const PEERDEPS_KEY = b4a.from(PEERDEPS_KEY_VALUE)
 module.exports = class Hyperbundle extends ReadyResource {
   constructor(store, opts = {}) {
     super()
-    this._bee = new Bee(store, opts)
+    this._bee = new Bee(store, { autoUpdate: true, ...opts })
 
     this.ready().catch(noop)
   }
