@@ -162,6 +162,7 @@ module.exports = class Hyperbundle extends ReadyResource {
 
   async load(root, entry, checkout, { cache = require.cache, skipModules = true } = {}) {
     if (!this.opened) await this.ready()
+    if (!(await this.get(entry, checkout))) throw new Error(`${entry} not found`)
 
     const b = await this.checkout(checkout)
     const loadedData = new Map()
