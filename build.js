@@ -3,7 +3,7 @@ import Hyperschema from 'hyperschema'
 export const schema = Hyperschema.from('./schema', { import: false })
 
 {
-  const ns = schema.namespace('hyperbundle')
+  const ns = schema.namespace('bundlebee')
 
   ns.register({
     name: 'resolutions',
@@ -23,7 +23,7 @@ export const schema = Hyperschema.from('./schema', { import: false })
       {
         name: 'resolutions',
         required: true,
-        type: '@hyperbundle/resolutions'
+        type: '@bundlebee/resolutions'
       }
     ]
   })

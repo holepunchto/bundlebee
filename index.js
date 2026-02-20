@@ -9,9 +9,9 @@ const Bee = require('hyperbee2')
 const c = require('compact-encoding')
 const { getEncoding } = require('./schema')
 
-const Entry = getEncoding('@hyperbundle/entry')
-const Manifest = getEncoding('@hyperbundle/manifest')
-const PeerDeps = getEncoding('@hyperbundle/peer-deps')
+const Entry = getEncoding('@bundlebee/entry')
+const Manifest = getEncoding('@bundlebee/manifest')
+const PeerDeps = getEncoding('@bundlebee/peer-deps')
 
 const MANIFEST_KEY_VALUE = '#manifest'
 const MANIFEST_KEY = b4a.from(MANIFEST_KEY_VALUE)
@@ -21,7 +21,7 @@ const PEERDEPS_KEY = b4a.from(PEERDEPS_KEY_VALUE)
 // TODO
 // peer deps
 
-module.exports = class Hyperbundle extends ReadyResource {
+module.exports = class Bundlebee extends ReadyResource {
   constructor(store, opts = {}) {
     super()
     this._bee = new Bee(store, { autoUpdate: true, ...opts })
@@ -37,7 +37,7 @@ module.exports = class Hyperbundle extends ReadyResource {
         ? files.pop()
         : undefined
 
-    const b = new Hyperbundle(store, opts)
+    const b = new Bundlebee(store, opts)
     const manifest = await b.manifest()
 
     // skip requires an existing manifest
@@ -57,7 +57,7 @@ module.exports = class Hyperbundle extends ReadyResource {
 
       all.push({
         ...data,
-        bundle: Hyperbundle.bundleFrom(data.bundle)
+        bundle: Bundlebee.bundleFrom(data.bundle)
       })
 
       return all

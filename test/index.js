@@ -2,11 +2,11 @@ const { test } = require('brittle')
 const Corestore = require('corestore')
 const Hyperswarm = require('hyperswarm')
 const createTestnet = require('hyperdht/testnet')
-const Hyperbundle = require('..')
+const Bundlebee = require('..')
 
 test('basic', async (t) => {
   const store = new Corestore(await t.tmp())
-  const b = await Hyperbundle.require(
+  const b = await Bundlebee.require(
     store,
     './test/fixtures/0.bundle',
     './test/fixtures/1.bundle',
@@ -50,7 +50,7 @@ test('basic', async (t) => {
 
 test('entry stream', async (t) => {
   const store = new Corestore(await t.tmp())
-  const b = await Hyperbundle.require(
+  const b = await Bundlebee.require(
     store,
     './test/fixtures/0.bundle',
     './test/fixtures/1.bundle',
@@ -77,7 +77,7 @@ test('entry stream', async (t) => {
 
 test('add', async (t) => {
   const store = new Corestore(await t.tmp())
-  const b = new Hyperbundle(store)
+  const b = new Bundlebee(store)
 
   const layer = await b.add(new URL(`file:${__dirname}/fixtures/3/`), 'entrypoint.js')
   t.ok(layer)
@@ -97,7 +97,7 @@ test('add', async (t) => {
 
 test('add - modules', async (t) => {
   const store = new Corestore(await t.tmp())
-  const b = new Hyperbundle(store)
+  const b = new Bundlebee(store)
 
   // note: node_modules will try use higher up the tree if doesn't exist
   // hence we have it checked in
@@ -121,7 +121,7 @@ test('add - modules', async (t) => {
 
 test('add - modules w/peer deps', async (t) => {
   const store = new Corestore(await t.tmp())
-  const b = new Hyperbundle(store)
+  const b = new Bundlebee(store)
 
   const layer = await b.add(new URL(`file:${__dirname}/fixtures/3/`), 'entrypoint.js', {
     skipModules: false,
@@ -187,7 +187,7 @@ async function createBee(t, bootstrap, key, discoveryKey) {
     store.replicate(conn)
   })
 
-  const b = new Hyperbundle(store, { key, autoUpdate: true })
+  const b = new Bundlebee(store, { key, autoUpdate: true })
   await b.ready()
 
   t.teardown(() => {

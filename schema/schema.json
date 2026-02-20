@@ -1,16 +1,16 @@
 {
-  "version": 2,
+  "version": 1,
   "schema": [
     {
       "name": "resolutions",
-      "namespace": "hyperbundle",
+      "namespace": "bundlebee",
       "record": true,
       "key": "string",
       "value": "string"
     },
     {
       "name": "entry",
-      "namespace": "hyperbundle",
+      "namespace": "bundlebee",
       "compact": false,
       "flagsPosition": -1,
       "fields": [
@@ -23,14 +23,14 @@
         {
           "name": "resolutions",
           "required": true,
-          "type": "@hyperbundle/resolutions",
+          "type": "@bundlebee/resolutions",
           "version": 1
         }
       ]
     },
     {
       "name": "manifest",
-      "namespace": "hyperbundle",
+      "namespace": "bundlebee",
       "compact": false,
       "flagsPosition": -1,
       "fields": [
@@ -44,7 +44,7 @@
     },
     {
       "name": "peer-deps",
-      "namespace": "hyperbundle",
+      "namespace": "bundlebee",
       "compact": false,
       "flagsPosition": -1,
       "fields": [
@@ -53,7 +53,7 @@
           "required": true,
           "array": true,
           "type": "string",
-          "version": 2
+          "version": 1
         }
       ]
     }
