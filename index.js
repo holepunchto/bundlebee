@@ -159,15 +159,14 @@ module.exports = class Bundlebee extends ReadyResource {
       const manifest = c.decode(Manifest, record.value)
       if (manifest.abi !== abi) continue
 
-      return d.head.length
+      return d.head
     }
   }
 
-  async checkout(length) {
+  async checkout(checkout) {
     if (!this.opened) await this.ready()
-    if (!length) length = this._bee.head().length
 
-    return this._bee.checkout({ length })
+    return this._bee.checkout(checkout)
   }
 
   async load(root, entry, checkout, { cache = require.cache, skipModules = true } = {}) {

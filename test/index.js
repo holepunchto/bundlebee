@@ -20,7 +20,8 @@ test('basic', async (t) => {
   }
 
   {
-    const { source, resolutions } = await b.get('/entrypoint.js', 1)
+    const checkout = await b.findABI(1)
+    const { source, resolutions } = await b.get('/entrypoint.js', checkout)
     t.is(source.toString().trim(), `module.exports = 'bundle-0'`)
     t.alike(resolutions, Object.assign(Object.create(null), { '#package': '/package.json' }))
   }
@@ -40,10 +41,10 @@ test('basic', async (t) => {
     const manifest = await b.manifest()
     t.alike(manifest, { abi: 4 })
 
-    const length = await b.findABI(2)
-    t.is(length, 2)
+    const checkout = await b.findABI(2)
+    t.is(checkout.length, 2)
 
-    const mod = await b.load(new URL(`file:${__dirname}/fixtures/3/`), '/entrypoint.js', length)
+    const mod = await b.load(new URL(`file:${__dirname}/fixtures/3/`), '/entrypoint.js', checkout)
     t.is(mod.exports, 'bundle-1')
   }
 })
