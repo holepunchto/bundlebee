@@ -146,10 +146,7 @@ module.exports = class Bundlebee extends ReadyResource {
   }
 
   async findABI(abi) {
-    for await (const d of this._bee.createChangesStream({
-      gt: MANIFEST_KEY,
-      lt: MANIFEST_KEY
-    })) {
+    for await (const d of this._bee.createChangesStream()) {
       let record = null
       for (const b of d.batch) {
         if (!b.keys) continue
