@@ -203,7 +203,7 @@ module.exports = class Bundlebee extends ReadyResource {
       for (const [k, v] of Object.entries(resolutions)) {
         const skip = peerDeps && peerDeps.has(k)
         const nm =
-          (v.startsWith('/node_modules') && skipModules) || skip ? findModule(cache, v, root) : null
+          (v.includes('node_modules/') && skipModules) || skip ? findModule(cache, v, root) : null
         if (nm) {
           m[k] = 'bundle://host' + v
           bundleCache[m[k]] = nm
@@ -226,7 +226,6 @@ module.exports = class Bundlebee extends ReadyResource {
     if (!root.pathname.endsWith('/')) root = new URL('./', root)
     if (peerDependencies) peerDependencies = new Set(peerDependencies)
 
-    const nodeModules = new URL('./node_modules', root)
     const bundle = new Bundle()
 
     const resolutions = {}
@@ -287,6 +286,11 @@ module.exports = class Bundlebee extends ReadyResource {
     }
 
     const w = this._bee.write()
+
+    // for await (const { key } of this._bee.createReadStream()) {
+    //   w.tryDelete(key)
+    // }
+
     for (const f in data.bundle.files) {
       w.tryPut(
         b4a.from(f),
