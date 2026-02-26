@@ -221,7 +221,7 @@ module.exports = class Bundlebee extends ReadyResource {
     })
   }
 
-  async add(root, entry, { skipModules = true, peerDependencies, abi } = {}) {
+  async add(root, entry, { skipModules = true, peerDependencies, abi, dryRun = false } = {}) {
     if (!this.opened) await this.ready()
     if (!root.pathname.endsWith('/')) root = new URL('./', root)
     if (peerDependencies) peerDependencies = new Set(peerDependencies)
@@ -267,6 +267,8 @@ module.exports = class Bundlebee extends ReadyResource {
     }
 
     bundle.resolutions = resolutions
+
+    if (dryRun) return bundle
 
     await this._addBundle({ bundle, abi }, peerDependencies)
 
