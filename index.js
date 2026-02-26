@@ -237,11 +237,11 @@ module.exports = class Bundlebee extends ReadyResource {
       readModule,
       listPrefix
     )) {
-      if (dependency.url.href.startsWith(nodeModules.href)) {
+      if (dependency.url.href.includes('/node_modules/')) {
         if (skipModules) continue
         if (peerDependencies) {
           const moduleName = dependency.url.pathname
-            .replace(root.pathname + 'node_modules/', '')
+            .slice(dependency.url.pathname.lastIndexOf('node_modules/') + 13)
             .split('/')[0]
           if (peerDependencies.has(moduleName)) continue
         }
