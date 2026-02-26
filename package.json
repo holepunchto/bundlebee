@@ -1,6 +1,6 @@
 {
   "name": "bundlebee",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "bundlebee",
   "main": "index.js",
   "imports": {
