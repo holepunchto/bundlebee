@@ -287,10 +287,6 @@ module.exports = class Bundlebee extends ReadyResource {
 
     const w = this._bee.write()
 
-    // for await (const { key } of this._bee.createReadStream()) {
-    //   w.tryDelete(key)
-    // }
-
     for (const f in data.bundle.files) {
       w.tryPut(
         b4a.from(f),
