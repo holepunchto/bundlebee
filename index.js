@@ -221,7 +221,7 @@ module.exports = class Bundlebee extends ReadyResource {
     })
   }
 
-  async add(root, entry, { skipModules = true, peerDependencies } = {}) {
+  async add(root, entry, { skipModules = true, peerDependencies, abi } = {}) {
     if (!this.opened) await this.ready()
     if (!root.pathname.endsWith('/')) root = new URL('./', root)
     if (peerDependencies) peerDependencies = new Set(peerDependencies)
@@ -268,7 +268,7 @@ module.exports = class Bundlebee extends ReadyResource {
 
     bundle.resolutions = resolutions
 
-    await this._addBundle({ bundle }, peerDependencies)
+    await this._addBundle({ bundle, abi }, peerDependencies)
 
     return bundle
   }
@@ -286,9 +286,6 @@ module.exports = class Bundlebee extends ReadyResource {
 
     const w = this._bee.write()
     for (const f in data.bundle.files) {
-      // TODO: make a schema for resolutions value
-      // source + resolutions map
-
       w.tryPut(
         b4a.from(f),
         c.encode(Entry, {
