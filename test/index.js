@@ -47,6 +47,31 @@ test('basic', async (t) => {
     const mod = await b.load(new URL(`file:${__dirname}/fixtures/3/`), '/entrypoint.js', checkout)
     t.is(mod.exports, 'bundle-1')
   }
+
+  // list abis
+  {
+    const abis = []
+    for await (const res of b.allABIs()) {
+      abis.push(res)
+    }
+    t.is(abis.length, 4)
+
+    t.ok(abis[0].checkout.key)
+    t.ok(abis[0].checkout.length, 4)
+    t.ok(abis[0].manifest.abi, 4)
+
+    t.ok(abis[1].checkout.key)
+    t.ok(abis[1].checkout.length, 3)
+    t.ok(abis[1].manifest.abi, 3)
+
+    t.ok(abis[2].checkout.key)
+    t.ok(abis[2].checkout.length, 2)
+    t.ok(abis[2].manifest.abi, 2)
+
+    t.ok(abis[3].checkout.key)
+    t.ok(abis[3].checkout.length, 1)
+    t.ok(abis[3].manifest.abi, 1)
+  }
 })
 
 test('entry stream', async (t) => {

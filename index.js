@@ -163,6 +163,23 @@ module.exports = class Bundlebee extends ReadyResource {
     }
   }
 
+  async *allABIs() {
+    for await (const d of this._bee.createChangesStream()) {
+      let record = null
+      for (const b of d.batch) {
+        if (!b.keys) continue
+        const r = b.keys.find((k) => k.key.toString() === MANIFEST_KEY_VALUE)
+        if (!r) continue
+        record = r
+      }
+      if (!record) continue
+
+      const manifest = c.decode(Manifest, record.value)
+
+      yield { checkout: d.head, manifest }
+    }
+  }
+
   async checkout(checkout) {
     if (!this.opened) await this.ready()
 
