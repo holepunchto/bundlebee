@@ -169,6 +169,7 @@ module.exports = class Bundlebee extends ReadyResource {
 
       return d.head
     }
+    return null
   }
 
   async *allABIs() {
