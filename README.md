@@ -40,6 +40,15 @@ const mod = await b.load(new URL('file:///path/to/project/'), '/index.js')
 const { source, resolutions } = await b1.get('/entrypoint.js', 1)
 ```
 
+### Checkout a specific version on init
+
+```js
+const b = new Bundlebee(store, { key, length })
+
+// get remote bundle
+const mod = await b.load(new URL('file:///path/to/project/'), '/index.js')
+```
+
 ## API
 
 #### `const b = new Bundlebee(store, [opts])`
