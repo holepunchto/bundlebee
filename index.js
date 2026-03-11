@@ -107,6 +107,10 @@ module.exports = class Bundlebee extends ReadyResource {
     return this._bee.ready()
   }
 
+  _close() {
+    return this._bee.close()
+  }
+
   async *createEntryStream(checkout) {
     const b = checkout ? await this.checkout(checkout) : this._bee
 
