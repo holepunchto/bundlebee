@@ -24,7 +24,15 @@ const PEERDEPS_KEY = b4a.from(PEERDEPS_KEY_VALUE)
 module.exports = class Bundlebee extends ReadyResource {
   constructor(store, opts = {}) {
     super()
-    this._bee = new Bee(store, { autoUpdate: true, ...opts })
+
+    const { key, length = -1 } = opts
+    const autoUpdate = !key || length === -1
+
+    this._bee = new Bee(store, { autoUpdate, ...opts })
+
+    if (key && length !== -1) {
+      this._bee.move({ key, length })
+    }
 
     this.ready().catch(noop)
   }
