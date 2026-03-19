@@ -214,7 +214,7 @@ test.skip('sharing', async (t) => {
   }
 })
 
-test.solo('trace', async (t) => {
+test('trace', async (t) => {
   const store = new Corestore(await t.tmp())
   const b = new Bundlebee(store)
 
