@@ -123,6 +123,11 @@ module.exports = class Bundlebee extends ReadyResource {
     }
   }
 
+  async download(checkout, range) {
+    const bee = await this.checkout(checkout)
+    return bee.download(range)
+  }
+
   async manifest(checkout) {
     if (!this.opened) await this.ready()
 

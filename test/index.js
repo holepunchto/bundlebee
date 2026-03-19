@@ -239,6 +239,45 @@ test('trace', async (t) => {
   }
 })
 
+test.solo('download', async (t) => {
+  const store1 = new Corestore(await t.tmp())
+  const store2 = new Corestore(await t.tmp())
+
+  const b1 = new Bundlebee(store1)
+  const b2 = new Bundlebee(store2)
+
+  const s1 = store1.replicate(true)
+  const s2 = store2.replicate(false)
+
+  s1.pipe(s2).pipe(s1)
+
+  s1.on('error', console.error)
+  s2.on('error', console.error)
+
+  t.teardown(() => {
+    s1.destroy()
+    s2.destroy()
+  })
+
+  await b1.add(new URL(`file:${__dirname}/fixtures/3/`), 'entrypoint.js')
+  const checkout = await b1.findABI(1)
+
+  {
+    const layer = await b1.add(new URL(`file:${__dirname}/fixtures/3/`), 'entrypoint.js', {
+      trace: checkout
+    })
+    t.ok(layer)
+
+    const { trace } = await b1.manifest()
+    t.is(trace.key.toString('hex'), checkout.key.toString('hex'))
+    t.is(trace.length, checkout.length)
+  }
+
+  t.is(store2.cores.size, 1)
+  await b2.download(checkout)
+  t.is(store2.cores.size, 2)
+})
+
 async function createBee(t, bootstrap, key, discoveryKey) {
   const swarm = new Hyperswarm({ bootstrap })
   const store = new Corestore(await t.tmp())
