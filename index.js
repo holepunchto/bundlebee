@@ -253,7 +253,7 @@ module.exports = class Bundlebee extends ReadyResource {
   async add(
     root,
     entry,
-    { skipModules = true, peerDependencies, abi, dryRun = false, source, pre } = {}
+    { skipModules = true, peerDependencies, abi, dryRun = false, source, pre, trace } = {}
   ) {
     if (!this.opened) await this.ready()
     if (!root.pathname.endsWith('/')) root = new URL('./', root)
@@ -313,12 +313,12 @@ module.exports = class Bundlebee extends ReadyResource {
 
     if (dryRun) return bundle
 
-    await this._addBundle({ bundle, abi }, { pre, peerDependencies })
+    await this._addBundle({ bundle, abi }, { pre, peerDependencies, trace })
 
     return bundle
   }
 
-  async _addBundle(data, { peerDependencies, pre } = {}) {
+  async _addBundle(data, { peerDependencies, pre, trace } = {}) {
     if (!this.opened) await this.ready()
 
     let nextAbi = data.abi
@@ -355,7 +355,8 @@ module.exports = class Bundlebee extends ReadyResource {
     w.tryPut(
       b4a.from(MANIFEST_KEY),
       c.encode(Manifest, {
-        abi: nextAbi
+        abi: nextAbi,
+        trace
       })
     )
 

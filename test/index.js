@@ -40,7 +40,7 @@ test('basic', async (t) => {
   // manifest
   {
     const manifest = await b.manifest()
-    t.alike(manifest, { abi: 4 })
+    t.alike(manifest, { abi: 4, trace: null })
 
     const checkout = await b.findABI(2)
     t.is(checkout.length, 2)
@@ -260,6 +260,31 @@ test.skip('sharing', async (t) => {
       Object.assign(Object.create(null), { '#package': '/package.json' }),
       'b2 works'
     )
+  }
+})
+
+test.solo('trace', async (t) => {
+  const store = new Corestore(await t.tmp())
+  const b = new Bundlebee(store)
+
+  {
+    const layer = await b.add(new URL(`file:${__dirname}/fixtures/3/`), 'entrypoint.js')
+    t.ok(layer)
+
+    const { trace } = await b.manifest()
+    t.is(trace, null)
+  }
+
+  {
+    const checkout = await b.findABI(1)
+    const layer = await b.add(new URL(`file:${__dirname}/fixtures/3/`), 'entrypoint.js', {
+      trace: checkout
+    })
+    t.ok(layer)
+
+    const { trace } = await b.manifest()
+    t.is(trace.key.toString('hex'), checkout.key.toString('hex'))
+    t.is(trace.length, checkout.length)
   }
 })
 
