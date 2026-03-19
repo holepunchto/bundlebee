@@ -44,7 +44,7 @@ const encoding2 = {
     if (version >= 2 && m.trace) encoding2_1.preencode(state, m.trace)
   },
   encode(state, m) {
-    const flags = (version >= 2 && m.trace) ? 1 : 0
+    const flags = version >= 2 && m.trace ? 1 : 0
 
     c.uint.encode(state, m.abi)
     c.uint.encode(state, flags)
@@ -57,7 +57,7 @@ const encoding2 = {
 
     return {
       abi: r0,
-      trace: (version >= 2 && (flags & 1) !== 0) ? encoding2_1.decode(state) : null
+      trace: version >= 2 && (flags & 1) !== 0 ? encoding2_1.decode(state) : null
     }
   }
 }
