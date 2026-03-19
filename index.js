@@ -51,6 +51,7 @@ module.exports = class Bundlebee extends ReadyResource {
     // skip requires an existing manifest
     const skipExistingABIs = opts && !!opts.skipExistingABIs && !!manifest
     const peerDependencies = opts?.peerDependencies
+    const trace = opts?.trace
 
     // Early exit
     const lastAbi =
@@ -72,7 +73,7 @@ module.exports = class Bundlebee extends ReadyResource {
     }, [])
 
     for (const bu of bundles) {
-      await b._addBundle(bu, peerDependencies)
+      await b._addBundle(bu, { peerDependencies, trace })
     }
 
     return b
@@ -251,7 +252,11 @@ module.exports = class Bundlebee extends ReadyResource {
     })
   }
 
-  async add(root, entry, { skipModules = true, peerDependencies, abi, dryRun = false } = {}) {
+  async add(
+    root,
+    entry,
+    { skipModules = true, peerDependencies, abi, trace, dryRun = false } = {}
+  ) {
     if (!this.opened) await this.ready()
     if (!root.pathname.endsWith('/')) root = new URL('./', root)
     if (peerDependencies) peerDependencies = new Set(peerDependencies)
@@ -299,12 +304,12 @@ module.exports = class Bundlebee extends ReadyResource {
 
     if (dryRun) return bundle
 
-    await this._addBundle({ bundle, abi }, peerDependencies)
+    await this._addBundle({ bundle, abi }, { peerDependencies, trace })
 
     return bundle
   }
 
-  async _addBundle(data, peerDependencies) {
+  async _addBundle(data, { peerDependencies, trace } = {}) {
     if (!this.opened) await this.ready()
 
     let nextAbi = data.abi
@@ -339,7 +344,8 @@ module.exports = class Bundlebee extends ReadyResource {
     w.tryPut(
       b4a.from(MANIFEST_KEY),
       c.encode(Manifest, {
-        abi: nextAbi
+        abi: nextAbi,
+        trace
       })
     )
 

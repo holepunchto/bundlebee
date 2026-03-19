@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "schema": [
     {
       "name": "resolutions",
@@ -32,13 +32,18 @@
       "name": "manifest",
       "namespace": "bundlebee",
       "compact": false,
-      "flagsPosition": -1,
+      "flagsPosition": 1,
       "fields": [
         {
           "name": "abi",
           "required": true,
           "type": "uint",
           "version": 1
+        },
+        {
+          "name": "trace",
+          "type": "@bundlebee/checkout",
+          "version": 2
         }
       ]
     },
@@ -54,6 +59,26 @@
           "array": true,
           "type": "string",
           "version": 1
+        }
+      ]
+    },
+    {
+      "name": "checkout",
+      "namespace": "bundlebee",
+      "compact": false,
+      "flagsPosition": -1,
+      "fields": [
+        {
+          "name": "key",
+          "required": true,
+          "type": "fixed32",
+          "version": 2
+        },
+        {
+          "name": "length",
+          "required": true,
+          "type": "uint",
+          "version": 2
         }
       ]
     }
