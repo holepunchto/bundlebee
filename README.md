@@ -6,6 +6,8 @@ Bundle modules into [Hyperbee2](https://github.com/holepunchto/hyperbee2) for P2
 npm install bundlebee
 ```
 
+For the CLI for using this on your project see: https://github.com/holepunchto/bundlebee-cli
+
 ## Usage
 
 ```js
