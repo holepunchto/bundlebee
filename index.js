@@ -268,7 +268,9 @@ module.exports = class Bundlebee extends ReadyResource {
 
     const read = source
       ? function (url) {
-          if (url.href === entryURL.href) return typeof source === 'string' ? b4a.from(source) : source
+          if (url.href === entryURL.href) {
+            return typeof source === 'string' ? b4a.from(source) : source
+          }
           return readModule(url)
         }
       : readModule

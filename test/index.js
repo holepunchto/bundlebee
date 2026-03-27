@@ -184,7 +184,8 @@ test('add - source string', async (t) => {
   const store = new Corestore(await t.tmp())
   const b = new Bundlebee(store)
 
-  const src = "const b4a = require('b4a')\n\nmodule.exports = () => b4a.from('bundle-2').toString('utf-8')\n"
+  const src =
+    "const b4a = require('b4a')\n\nmodule.exports = () => b4a.from('bundle-2').toString('utf-8')\n"
 
   const layer = await b.add(new URL(`file:${__dirname}/fixtures/3/`), 'entrypoint.js', {
     source: src
@@ -208,7 +209,9 @@ test('add - source buffer', async (t) => {
   const store = new Corestore(await t.tmp())
   const b = new Bundlebee(store)
 
-  const src = b4a.from("const b4a = require('b4a')\n\nmodule.exports = () => b4a.from('bundle-2').toString('utf-8')\n")
+  const src = b4a.from(
+    "const b4a = require('b4a')\n\nmodule.exports = () => b4a.from('bundle-2').toString('utf-8')\n"
+  )
 
   const layer = await b.add(new URL(`file:${__dirname}/fixtures/3/`), 'entrypoint.js', {
     source: src
