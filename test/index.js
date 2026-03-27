@@ -180,6 +180,51 @@ test('add - modules w/peer deps', async (t) => {
   t.ok(store.closed)
 })
 
+test('add - source string', async (t) => {
+  const store = new Corestore(await t.tmp())
+  const b = new Bundlebee(store)
+
+  const src = "const b4a = require('b4a')\n\nmodule.exports = () => b4a.from('bundle-2').toString('utf-8')\n"
+
+  const layer = await b.add(new URL(`file:${__dirname}/fixtures/3/`), 'entrypoint.js', {
+    source: src
+  })
+  t.ok(layer)
+  t.absent(layer.files['/node_modules/b4a/index.js'])
+
+  const { source, resolutions } = await b.get('/entrypoint.js')
+  t.is(
+    source.toString().trim().split('\n').pop(),
+    `module.exports = () => b4a.from('bundle-2').toString('utf-8')`
+  )
+  t.ok(resolutions['b4a'].endsWith('/node_modules/b4a/index.js'))
+
+  const mod = await b.load(new URL(`file:${__dirname}/fixtures/3/`), '/entrypoint.js')
+  t.is(mod.exports(), 'bundle-2')
+})
+
+test('add - source buffer', async (t) => {
+  const b4a = require('b4a')
+  const store = new Corestore(await t.tmp())
+  const b = new Bundlebee(store)
+
+  const src = b4a.from("const b4a = require('b4a')\n\nmodule.exports = () => b4a.from('bundle-2').toString('utf-8')\n")
+
+  const layer = await b.add(new URL(`file:${__dirname}/fixtures/3/`), 'entrypoint.js', {
+    source: src
+  })
+  t.ok(layer)
+
+  const { source } = await b.get('/entrypoint.js')
+  t.is(
+    source.toString().trim().split('\n').pop(),
+    `module.exports = () => b4a.from('bundle-2').toString('utf-8')`
+  )
+
+  const mod = await b.load(new URL(`file:${__dirname}/fixtures/3/`), '/entrypoint.js')
+  t.is(mod.exports(), 'bundle-2')
+})
+
 test.skip('sharing', async (t) => {
   const { bootstrap } = await createTestnet(t)
   const b1 = await createBee(t, bootstrap)
