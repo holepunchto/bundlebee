@@ -251,7 +251,11 @@ module.exports = class Bundlebee extends ReadyResource {
     })
   }
 
-  async add(root, entry, { skipModules = true, peerDependencies, abi, dryRun = false } = {}) {
+  async add(
+    root,
+    entry,
+    { skipModules = true, peerDependencies, abi, dryRun = false, source } = {}
+  ) {
     if (!this.opened) await this.ready()
     if (!root.pathname.endsWith('/')) root = new URL('./', root)
     if (peerDependencies) peerDependencies = new Set(peerDependencies)
@@ -260,10 +264,21 @@ module.exports = class Bundlebee extends ReadyResource {
 
     const resolutions = {}
 
+    const entryURL = new URL(entry, root)
+
+    const read = source
+      ? function (url) {
+          if (url.href === entryURL.href) {
+            return typeof source === 'string' ? b4a.from(source) : source
+          }
+          return readModule(url)
+        }
+      : readModule
+
     for await (const dependency of traverse(
-      new URL(entry, root),
+      entryURL,
       { resolve: traverse.resolve.bare },
-      readModule,
+      read,
       listPrefix
     )) {
       if (dependency.url.href.includes('/node_modules/')) {
