@@ -42,7 +42,8 @@
         },
         {
           "name": "trace",
-          "type": "@bundlebee/checkout",
+          "array": true,
+          "type": "@bundlebee/trace",
           "version": 2
         }
       ]
@@ -63,19 +64,19 @@
       ]
     },
     {
-      "name": "checkout",
+      "name": "trace",
       "namespace": "bundlebee",
       "compact": false,
       "flagsPosition": -1,
       "fields": [
         {
-          "name": "key",
+          "name": "core",
           "required": true,
-          "type": "fixed32",
+          "type": "uint",
           "version": 2
         },
         {
-          "name": "length",
+          "name": "seq",
           "required": true,
           "type": "uint",
           "version": 2

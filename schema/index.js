@@ -44,7 +44,7 @@ const encoding2 = {
     if (version >= 2 && m.trace) encoding2_1.preencode(state, m.trace)
   },
   encode(state, m) {
-    const flags = version >= 2 && m.trace ? 1 : 0
+    const flags = (version >= 2 && m.trace) ? 1 : 0
 
     c.uint.encode(state, m.abi)
     c.uint.encode(state, flags)
@@ -57,7 +57,7 @@ const encoding2 = {
 
     return {
       abi: r0,
-      trace: version >= 2 && (flags & 1) !== 0 ? encoding2_1.decode(state) : null
+      trace: (version >= 2 && (flags & 1) !== 0) ? encoding2_1.decode(state) : null
     }
   }
 }
@@ -82,29 +82,29 @@ const encoding3 = {
   }
 }
 
-// @bundlebee/checkout
+// @bundlebee/trace
 const encoding4 = {
   preencode(state, m) {
-    c.fixed32.preencode(state, m.key)
-    c.uint.preencode(state, m.length)
+    c.uint.preencode(state, m.core)
+    c.uint.preencode(state, m.seq)
   },
   encode(state, m) {
-    c.fixed32.encode(state, m.key)
-    c.uint.encode(state, m.length)
+    c.uint.encode(state, m.core)
+    c.uint.encode(state, m.seq)
   },
   decode(state) {
-    const r0 = c.fixed32.decode(state)
+    const r0 = c.uint.decode(state)
     const r1 = c.uint.decode(state)
 
     return {
-      key: r0,
-      length: r1
+      core: r0,
+      seq: r1
     }
   }
 }
 
 // @bundlebee/manifest.trace, deferred due to recusive use
-const encoding2_1 = c.frame(encoding4)
+const encoding2_1 = c.array(c.frame(encoding4))
 
 function setVersion(v) {
   version = v
@@ -137,7 +137,7 @@ function getEncoding(name) {
       return encoding2
     case '@bundlebee/peer-deps':
       return encoding3
-    case '@bundlebee/checkout':
+    case '@bundlebee/trace':
       return encoding4
     default:
       throw new Error('Encoder not found ' + name)

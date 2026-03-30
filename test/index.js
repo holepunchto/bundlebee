@@ -275,16 +275,21 @@ test('trace', async (t) => {
     t.is(trace, null)
   }
 
+  const expectedTrace = [
+    { core: 0, seq: 1 },
+    { core: 1, seq: 1 },
+    { core: 1, seq: 2 },
+    { core: 2, seq: 1 }
+  ]
+
   {
-    const checkout = await b.findABI(1)
     const layer = await b.add(new URL(`file:${__dirname}/fixtures/3/`), 'entrypoint.js', {
-      trace: checkout
+      trace: expectedTrace
     })
     t.ok(layer)
 
     const { trace } = await b.manifest()
-    t.is(trace.key.toString('hex'), checkout.key.toString('hex'))
-    t.is(trace.length, checkout.length)
+    t.alike(trace, expectedTrace)
   }
 })
 

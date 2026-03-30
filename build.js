@@ -13,6 +13,22 @@ export const schema = Hyperschema.from('./schema', { import: false })
   })
 
   ns.register({
+    name: 'trace',
+    fields: [
+      {
+        name: 'core',
+        type: 'uint',
+        required: true
+      },
+      {
+        name: 'seq',
+        type: 'uint',
+        required: true
+      }
+    ]
+  })
+
+  ns.register({
     name: 'entry',
     fields: [
       {
@@ -38,7 +54,8 @@ export const schema = Hyperschema.from('./schema', { import: false })
       },
       {
         name: 'trace',
-        type: '@bundlebee/checkout'
+        type: '@bundlebee/trace',
+        array: true
       }
     ]
   })
@@ -50,22 +67,6 @@ export const schema = Hyperschema.from('./schema', { import: false })
         name: 'packages',
         type: 'string',
         array: true,
-        required: true
-      }
-    ]
-  })
-
-  ns.register({
-    name: 'checkout',
-    fields: [
-      {
-        name: 'key',
-        type: 'fixed32',
-        required: true
-      },
-      {
-        name: 'length',
-        type: 'uint',
         required: true
       }
     ]
