@@ -50,7 +50,6 @@ module.exports = class Bundlebee extends ReadyResource {
 
     // skip requires an existing manifest
     const skipExistingABIs = opts && !!opts.skipExistingABIs && !!manifest
-    const peerDependencies = opts?.peerDependencies
 
     // Early exit
     const lastAbi =
@@ -72,7 +71,7 @@ module.exports = class Bundlebee extends ReadyResource {
     }, [])
 
     for (const bu of bundles) {
-      await b._addBundle(bu, peerDependencies)
+      await b._addBundle(bu, opts)
     }
 
     return b
@@ -254,7 +253,7 @@ module.exports = class Bundlebee extends ReadyResource {
   async add(
     root,
     entry,
-    { skipModules = true, peerDependencies, abi, dryRun = false, source } = {}
+    { skipModules = true, peerDependencies, abi, dryRun = false, source, pre } = {}
   ) {
     if (!this.opened) await this.ready()
     if (!root.pathname.endsWith('/')) root = new URL('./', root)
@@ -314,12 +313,12 @@ module.exports = class Bundlebee extends ReadyResource {
 
     if (dryRun) return bundle
 
-    await this._addBundle({ bundle, abi }, peerDependencies)
+    await this._addBundle({ bundle, abi }, { pre, peerDependencies })
 
     return bundle
   }
 
-  async _addBundle(data, peerDependencies) {
+  async _addBundle(data, { peerDependencies, pre } = {}) {
     if (!this.opened) await this.ready()
 
     let nextAbi = data.abi
@@ -333,10 +332,12 @@ module.exports = class Bundlebee extends ReadyResource {
     const w = this._bee.write()
 
     for (const f in data.bundle.files) {
+      const source = data.bundle.files[f].read()
+
       w.tryPut(
         b4a.from(f),
         c.encode(Entry, {
-          source: data.bundle.files[f].read(),
+          source: pre ? await pre(source, f) : source,
           resolutions: data.bundle.resolutions[f]
         })
       )

@@ -3,6 +3,7 @@ const Corestore = require('corestore')
 const Hyperswarm = require('hyperswarm')
 const createTestnet = require('hyperdht/testnet')
 const Bundlebee = require('..')
+const b4a = require('b4a')
 
 test('basic', async (t) => {
   const store = new Corestore(await t.tmp())
@@ -288,3 +289,59 @@ async function createBee(t, bootstrap, key, discoveryKey) {
 
   return b
 }
+
+test('obfs', async (t) => {
+  function pre(source, file) {
+    if (!file.endsWith('.js')) return source
+
+    return b4a.from(b4a.toString(source).replace('bundle-', 'hello-'))
+  }
+
+  const store = new Corestore(await t.tmp())
+  const b = await Bundlebee.require(
+    store,
+    './test/fixtures/0.bundle',
+    './test/fixtures/1.bundle',
+    './test/fixtures/2.bundle',
+    {
+      pre
+    }
+  )
+
+  {
+    const { source, resolutions } = await b.get('/entrypoint.js')
+    t.is(source.toString().trim().split('\n').pop(), `module.exports = 'hello-2'`)
+    t.alike(resolutions, Object.assign(Object.create(null), { '#package': '/package.json' }))
+  }
+
+  {
+    const checkout = await b.findABI(1)
+    const { source, resolutions } = await b.get('/entrypoint.js', checkout)
+    t.is(source.toString().trim().split('\n').pop(), `module.exports = 'hello-0'`)
+    t.alike(resolutions, Object.assign(Object.create(null), { '#package': '/package.json' }))
+  }
+
+  {
+    const mod = await b.load(new URL(`file:${__dirname}/fixtures/3/`), '/entrypoint.js')
+    t.ok(mod)
+    t.is(mod.exports, 'hello-2')
+  }
+
+  const layer = await b.add(new URL(`file:${__dirname}/fixtures/3/`), 'entrypoint.js', {
+    pre
+  })
+  t.ok(layer)
+  t.ok(layer.toBuffer())
+
+  // latest
+  {
+    const { source, resolutions } = await b.get('/entrypoint.js')
+    t.is(
+      source.toString().trim().split('\n').pop(),
+      `module.exports = () => b4a.from('hello-2').toString('utf-8')`
+    )
+
+    t.ok(resolutions['#package'].endsWith('/package.json'))
+    t.ok(resolutions['b4a'].endsWith('/node_modules/b4a/index.js'))
+  }
+})
