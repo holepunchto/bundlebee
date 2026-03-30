@@ -345,3 +345,31 @@ test('obfs', async (t) => {
     t.ok(resolutions['b4a'].endsWith('/node_modules/b4a/index.js'))
   }
 })
+
+test('readonly', async (t) => {
+  function pre(source, file) {
+    if (!file.endsWith('.js')) return source
+
+    return b4a.from(b4a.toString(source).replace('bundle-', 'hello-'))
+  }
+  const dir = await t.tmp()
+  const store = new Corestore(dir)
+  const b = await Bundlebee.require(
+    store,
+    './test/fixtures/0.bundle',
+    './test/fixtures/1.bundle',
+    './test/fixtures/2.bundle',
+    {
+      pre
+    }
+  )
+
+  {
+    const store = new Corestore(dir, { readOnly: true })
+    const b2 = new Bundlebee(store)
+
+    const mod = await b2.load(new URL(`file:${__dirname}/fixtures/3/`), '/entrypoint.js')
+    t.ok(mod)
+    t.is(mod.exports, 'hello-2')
+  }
+})
