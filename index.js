@@ -259,6 +259,7 @@ module.exports = class Bundlebee extends ReadyResource {
     if (!root.pathname.endsWith('/')) root = new URL('./', root)
     if (peerDependencies) peerDependencies = new Set(peerDependencies)
 
+    const nodeModules = new URL('./node_modules', root)
     const bundle = new Bundle()
 
     const resolutions = {}
@@ -280,7 +281,7 @@ module.exports = class Bundlebee extends ReadyResource {
       read,
       listPrefix
     )) {
-      if (dependency.url.href.includes('/node_modules/')) {
+      if (dependency.url.href.startsWith(nodeModules.href)) {
         if (skipModules) continue
         if (peerDependencies) {
           const moduleName = dependency.url.pathname
@@ -294,12 +295,6 @@ module.exports = class Bundlebee extends ReadyResource {
       const imps = {}
       for (const [k, v] of Object.entries(dependency.imports)) {
         imps[k] = new URL(v).pathname.replace(root.pathname, '/')
-
-        // always reduce node_modules
-        const nodeModulesIdx = imps[k].indexOf('/node_modules')
-        if (nodeModulesIdx > -1) {
-          imps[k] = imps[k].substring(nodeModulesIdx)
-        }
       }
 
       const existing = await this.get(p)
