@@ -294,6 +294,12 @@ module.exports = class Bundlebee extends ReadyResource {
       const imps = {}
       for (const [k, v] of Object.entries(dependency.imports)) {
         imps[k] = new URL(v).pathname.replace(root.pathname, '/')
+
+        // always reduce node_modules
+        const nodeModulesIdx = imps[k].indexOf('/node_modules')
+        if (nodeModulesIdx > -1) {
+          imps[k] = imps[k].substring(nodeModulesIdx)
+        }
       }
 
       const existing = await this.get(p)
