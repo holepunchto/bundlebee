@@ -1,6 +1,6 @@
 const traverse = require('bare-module-traverse')
 const Bundle = require('bare-bundle')
-const Module = require('bare-module')
+const Module = require('module')
 const { fileURLToPath } = require('url-file-url')
 const fs = require('fs')
 const b4a = require('b4a')
@@ -8,6 +8,7 @@ const ReadyResource = require('ready-resource')
 const Bee = require('hyperbee2')
 const c = require('compact-encoding')
 const { getEncoding } = require('./schema')
+const { isBare } = require('which-runtime')
 
 const Entry = getEncoding('@bundlebee/entry')
 const Manifest = getEncoding('@bundlebee/manifest')
@@ -199,6 +200,8 @@ module.exports = class Bundlebee extends ReadyResource {
   }
 
   async load(root, entry, checkout, { cache = require.cache, skipModules = true } = {}) {
+    if (!isBare) throw new Error('load is only supported in Bare')
+
     if (!this.opened) await this.ready()
     if (!(await this.get(entry, checkout))) throw new Error(`${entry} not found`)
 
