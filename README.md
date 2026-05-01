@@ -89,7 +89,7 @@ Traverse `entrypoint` relative to `root` (a `file://` URL) and write all discove
 
 #### `const mod = await b.load(root, entrypoint, [checkout], [opts])`
 
-> [!WARNING] 
+> [!WARNING]
 > Only supported in Bare. Must use `bare` i.e. `bare my-bundling-script.js` for creating `Bundlebee` bundles from file
 
 Load `entrypoint` from the bee using `bare-module`. If `checkout` is provided, a snapshot at that Hyperbee length is used.
