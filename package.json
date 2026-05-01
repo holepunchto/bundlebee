@@ -7,6 +7,10 @@
     "fs": {
       "bare": "bare-fs",
       "default": "fs"
+    },
+    "module": {
+      "bare": "bare-module",
+      "default": "module"
     }
   },
   "exports": {

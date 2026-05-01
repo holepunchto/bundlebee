@@ -1,6 +1,6 @@
 const traverse = require('bare-module-traverse')
 const Bundle = require('bare-bundle')
-const Module = require('bare-module')
+const Module = require('module')
 const { fileURLToPath } = require('url-file-url')
 const fs = require('fs')
 const b4a = require('b4a')
