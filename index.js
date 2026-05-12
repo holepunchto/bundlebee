@@ -198,7 +198,12 @@ module.exports = class Bundlebee extends ReadyResource {
     return this._bee.checkout(checkout)
   }
 
-  async load(root, entry, checkout, { cache = require.cache, skipModules = true } = {}) {
+  async load(
+    root,
+    entry,
+    checkout,
+    { cache = require.cache, skipModules = true, map = null } = {}
+  ) {
     if (!this.opened) await this.ready()
     if (!(await this.get(entry, checkout))) throw new Error(`${entry} not found`)
 
@@ -211,7 +216,9 @@ module.exports = class Bundlebee extends ReadyResource {
       },
       read(url) {
         const p = url.pathname
-        return loadedData.get(p)
+        const loaded = loadedData.get(p)
+        if (map) return map(p, loaded)
+        return loaded
       }
     })
 
