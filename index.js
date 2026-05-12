@@ -198,7 +198,12 @@ module.exports = class Bundlebee extends ReadyResource {
     return this._bee.checkout(checkout)
   }
 
-  async load(root, entry, checkout, { cache = require.cache, skipModules = true, map = null } = {}) {
+  async load(
+    root,
+    entry,
+    checkout,
+    { cache = require.cache, skipModules = true, map = null } = {}
+  ) {
     if (!this.opened) await this.ready()
     if (!(await this.get(entry, checkout))) throw new Error(`${entry} not found`)
 
