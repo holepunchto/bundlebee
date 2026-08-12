@@ -21,4 +21,5 @@ jobs:
     name: Test / ${{ matrix.platform }}
     steps:
       - uses: holepunchto/actions/bare-base@v1
+      - run: cd test/fixtures/3 && npm i
       - run: npm test

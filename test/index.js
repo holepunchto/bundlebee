@@ -115,8 +115,8 @@ test('add', async (t) => {
     source.toString().trim().split('\n').pop(),
     `module.exports = () => b4a.from('bundle-2').toString('utf-8')`
   )
-  t.ok(resolutions['#package'].endsWith('/package.json'))
-  t.ok(resolutions['b4a'].endsWith('/node_modules/b4a/index.js'))
+  t.is(resolutions['#package'], '/package.json')
+  t.is(resolutions['b4a'], '/node_modules/b4a/index.js')
 
   const mod = await b.load(new URL(`file:${__dirname}/fixtures/3/`), '/entrypoint.js')
   t.is(mod.exports(), 'bundle-2')
@@ -132,12 +132,12 @@ test('add - modules', async (t) => {
     skipModules: false
   })
   t.ok(layer)
-  t.ok(Object.keys(layer.files).find((k) => k.endsWith('/node_modules/stuff/index.js')))
+  t.ok(Object.keys(layer.files).find((k) => k === '/node_modules/stuff/index.js'))
 
   const { source, resolutions } = await b.get('/entrypoint.js')
   t.is(source.toString().trim().split('\n').pop(), `module.exports = () => stuff('bundle-2')`)
-  t.ok(resolutions['#package'].endsWith('/package.json'))
-  t.ok(resolutions['stuff'].endsWith('/node_modules/stuff/index.js'))
+  t.is(resolutions['#package'], '/package.json')
+  t.is(resolutions['stuff'], '/node_modules/stuff/index.js')
 
   const mod = await b.load(new URL(`file:${__dirname}/fixtures/4/`), '/entrypoint.js', undefined, {
     skipModules: false
@@ -155,15 +155,15 @@ test('add - modules w/peer deps', async (t) => {
     peerDependencies: ['b4a'] // overrides skipModules for just these modules
   })
   t.ok(layer)
-  t.absent(Object.keys(layer.files).find((k) => k.endsWith('/node_modules/stuff/index.js')))
+  t.absent(Object.keys(layer.files).find((k) => k === '/node_modules/stuff/index.js'))
 
   const { source, resolutions } = await b.get('/entrypoint.js')
   t.is(
     source.toString().trim().split('\n').pop(),
     `module.exports = () => b4a.from('bundle-2').toString('utf-8')`
   )
-  t.ok(resolutions['#package'].endsWith('/package.json'))
-  t.ok(resolutions['b4a'].endsWith('/node_modules/b4a/index.js'))
+  t.is(resolutions['#package'], '/package.json')
+  t.is(resolutions['b4a'], '/node_modules/b4a/index.js')
 
   const mod = await b.load(new URL(`file:${__dirname}/fixtures/3/`), '/entrypoint.js', undefined, {
     skipModules: false
@@ -199,7 +199,7 @@ test('add - source string', async (t) => {
     source.toString().trim().split('\n').pop(),
     `module.exports = () => b4a.from('bundle-2').toString('utf-8')`
   )
-  t.ok(resolutions['b4a'].endsWith('/node_modules/b4a/index.js'))
+  t.is(resolutions['b4a'], '/node_modules/b4a/index.js')
 
   const mod = await b.load(new URL(`file:${__dirname}/fixtures/3/`), '/entrypoint.js')
   t.is(mod.exports(), 'bundle-2')
@@ -341,27 +341,19 @@ test('obfs', async (t) => {
       `module.exports = () => b4a.from('hello-2').toString('utf-8')`
     )
 
-    t.ok(resolutions['#package'].endsWith('/package.json'))
-    t.ok(resolutions['b4a'].endsWith('/node_modules/b4a/index.js'))
+    t.is(resolutions['#package'], '/package.json')
+    t.is(resolutions['b4a'], '/node_modules/b4a/index.js')
   }
 })
 
 test('readonly', async (t) => {
-  function pre(source, file) {
-    if (!file.endsWith('.js')) return source
-
-    return b4a.from(b4a.toString(source).replace('bundle-', 'hello-'))
-  }
   const dir = await t.tmp()
   const store = new Corestore(dir)
   const b = await Bundlebee.require(
     store,
     './test/fixtures/0.bundle',
     './test/fixtures/1.bundle',
-    './test/fixtures/2.bundle',
-    {
-      pre
-    }
+    './test/fixtures/2.bundle'
   )
 
   {
@@ -370,6 +362,6 @@ test('readonly', async (t) => {
 
     const mod = await b2.load(new URL(`file:${__dirname}/fixtures/3/`), '/entrypoint.js')
     t.ok(mod)
-    t.is(mod.exports, 'hello-2')
+    t.is(mod.exports, 'bundle-2')
   }
 })

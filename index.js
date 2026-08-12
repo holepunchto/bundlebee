@@ -266,6 +266,7 @@ module.exports = class Bundlebee extends ReadyResource {
     if (!root.pathname.endsWith('/')) root = new URL('./', root)
     if (peerDependencies) peerDependencies = new Set(peerDependencies)
 
+    const nodeModules = new URL('./node_modules', root)
     const bundle = new Bundle()
 
     const resolutions = {}
@@ -287,7 +288,7 @@ module.exports = class Bundlebee extends ReadyResource {
       read,
       listPrefix
     )) {
-      if (dependency.url.href.includes('/node_modules/')) {
+      if (dependency.url.href.startsWith(nodeModules.href)) {
         if (skipModules) continue
         if (peerDependencies) {
           const moduleName = dependency.url.pathname
