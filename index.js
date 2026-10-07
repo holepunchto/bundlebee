@@ -222,7 +222,7 @@ module.exports = class Bundlebee extends ReadyResource {
       }
     })
 
-    const bundleCache = Object.create(null)
+    const builtins = Object.create(null)
     const allResolutions = Object.create(null)
 
     const peerDeps = await this.peerDependencies(checkout)
@@ -241,8 +241,8 @@ module.exports = class Bundlebee extends ReadyResource {
         const nm =
           (v.includes('node_modules/') && skipModules) || skip ? findModule(cache, v, root) : null
         if (nm) {
-          m[k] = 'bundle://host' + v
-          bundleCache[m[k]] = nm
+          m[k] = 'builtin:' + nm.url.href
+          builtins[nm.url.href] = nm.exports
         } else {
           m[k] = 'bundle://layer' + v
         }
@@ -253,7 +253,8 @@ module.exports = class Bundlebee extends ReadyResource {
     return Module.load(new URL(entry, 'bundle://layer/'), {
       protocol,
       resolutions: allResolutions,
-      cache: bundleCache
+      builtins,
+      cache: Object.create(null)
     })
   }
 
