@@ -7,6 +7,7 @@ const b4a = require('b4a')
 
 test('basic', async (t) => {
   const store = new Corestore(await t.tmp())
+  t.teardown(() => store.close())
   const b = await Bundlebee.require(
     store,
     './test/fixtures/0.bundle',
@@ -77,6 +78,7 @@ test('basic', async (t) => {
 
 test('entry stream', async (t) => {
   const store = new Corestore(await t.tmp())
+  t.teardown(() => store.close())
   const b = await Bundlebee.require(
     store,
     './test/fixtures/0.bundle',
@@ -104,6 +106,7 @@ test('entry stream', async (t) => {
 
 test('add', async (t) => {
   const store = new Corestore(await t.tmp())
+  t.teardown(() => store.close())
   const b = new Bundlebee(store)
 
   const layer = await b.add(new URL(`file:${__dirname}/fixtures/3/`), 'entrypoint.js')
@@ -124,6 +127,7 @@ test('add', async (t) => {
 
 test('add - modules', async (t) => {
   const store = new Corestore(await t.tmp())
+  t.teardown(() => store.close())
   const b = new Bundlebee(store)
 
   // note: node_modules will try use higher up the tree if doesn't exist
@@ -148,6 +152,7 @@ test('add - modules', async (t) => {
 
 test('add - modules w/peer deps', async (t) => {
   const store = new Corestore(await t.tmp())
+  t.teardown(() => store.close())
   const b = new Bundlebee(store)
 
   const layer = await b.add(new URL(`file:${__dirname}/fixtures/3/`), 'entrypoint.js', {
@@ -174,6 +179,7 @@ test('add - modules w/peer deps', async (t) => {
 
 test('add - modules w/peer deps', async (t) => {
   const store = new Corestore(await t.tmp())
+  t.teardown(() => store.close())
   const b = new Bundlebee(store)
 
   await b.close()
@@ -183,6 +189,7 @@ test('add - modules w/peer deps', async (t) => {
 
 test('add - source string', async (t) => {
   const store = new Corestore(await t.tmp())
+  t.teardown(() => store.close())
   const b = new Bundlebee(store)
 
   const src =
@@ -208,6 +215,7 @@ test('add - source string', async (t) => {
 test('add - source buffer', async (t) => {
   const b4a = require('b4a')
   const store = new Corestore(await t.tmp())
+  t.teardown(() => store.close())
   const b = new Bundlebee(store)
 
   const src = b4a.from(
@@ -266,6 +274,7 @@ test.skip('sharing', async (t) => {
 async function createBee(t, bootstrap, key, discoveryKey) {
   const swarm = new Hyperswarm({ bootstrap })
   const store = new Corestore(await t.tmp())
+  t.teardown(() => store.close())
   swarm.on('connection', (conn) => {
     console.log('conn', !!conn)
     store.replicate(conn)
@@ -298,6 +307,7 @@ test('obfs', async (t) => {
   }
 
   const store = new Corestore(await t.tmp())
+  t.teardown(() => store.close())
   const b = await Bundlebee.require(
     store,
     './test/fixtures/0.bundle',
@@ -354,6 +364,7 @@ test('readonly', async (t) => {
   }
   const dir = await t.tmp()
   const store = new Corestore(dir)
+  t.teardown(() => store.close())
   const b = await Bundlebee.require(
     store,
     './test/fixtures/0.bundle',
@@ -366,10 +377,54 @@ test('readonly', async (t) => {
 
   {
     const store = new Corestore(dir, { readOnly: true })
+    t.teardown(() => store.close())
     const b2 = new Bundlebee(store)
 
     const mod = await b2.load(new URL(`file:${__dirname}/fixtures/3/`), '/entrypoint.js')
     t.ok(mod)
     t.is(mod.exports, 'hello-2')
   }
+})
+
+test('versions', async (t) => {
+  const b = new Bundlebee(new Corestore(await t.tmp()))
+  t.teardown(() => b.close())
+
+  const root = new URL(`file:${__dirname}/fixtures/3/`)
+
+  for (const version of ['1.2.9', '1.10.0', '2.0.0-beta.2', '2.0.0', '0.2.5']) {
+    await b.add(root, 'entrypoint.js', { version, source: `module.exports = '${version}'` })
+  }
+
+  for (const [range, expected] of [
+    ['1.10.0', '1.10.0'],
+    ['2.0.0-beta.2', '2.0.0-beta.2'],
+    ['^1.2.0', '1.10.0'],
+    ['~1.2.0', '1.2.9'],
+    ['^0.2.0', '0.2.5'],
+    ['*', '2.0.0']
+  ]) {
+    const checkout = await b.resolve(range)
+    t.is(checkout.version, expected, range)
+    t.is((await b.load(root, '/entrypoint.js', checkout)).exports, expected, range)
+  }
+
+  t.is(await b.resolve('^3.0.0'), null)
+
+  await t.exception(
+    b.add(root, 'entrypoint.js', { version: '1.10.0', source: 'module.exports = 0' }),
+    /already exists/
+  )
+})
+
+test('versions - include modules', async (t) => {
+  const b = new Bundlebee(new Corestore(await t.tmp()))
+  t.teardown(() => b.close())
+
+  const root = new URL(`file:${__dirname}/fixtures/4/`)
+  await b.add(root, 'entrypoint.js', { version: '1.0.0', skipModules: false })
+
+  const checkout = await b.resolve('^1.0.0')
+  const mod = await b.load(root, '/entrypoint.js', checkout, { skipModules: false, cache: {} })
+  t.is(mod.exports(), 'bundle-2')
 })

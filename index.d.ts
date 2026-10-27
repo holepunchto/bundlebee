@@ -25,6 +25,7 @@ declare module 'bundlebee' {
     skipModules?: boolean
     peerDependencies?: string[]
     abi?: number
+    version?: string
     dryRun?: boolean
   }
 
@@ -39,13 +40,17 @@ declare module 'bundlebee' {
   }
 
   interface ABIRecord {
-    checkout: number
+    checkout: HeadInfo
     manifest: Manifest
   }
 
   interface HeadInfo {
     key: Buffer
     length: number
+  }
+
+  interface VersionCheckout extends HeadInfo {
+    version: string
   }
 
   class Bundlebee extends ReadyResource {
@@ -64,17 +69,18 @@ declare module 'bundlebee' {
 
     head(): HeadInfo
 
-    get(key: string, checkout?: number): Promise<Entry | null>
-    checkout(checkout?: number): Promise<Bee>
-    manifest(checkout?: number): Promise<Manifest | null>
-    peerDependencies(checkout?: number): Promise<Set<string> | null>
+    get(key: string, checkout?: HeadInfo): Promise<Entry | null>
+    checkout(checkout?: HeadInfo): Promise<Bee>
+    resolve(range: string): Promise<VersionCheckout | null>
+    manifest(checkout?: HeadInfo): Promise<Manifest | null>
+    peerDependencies(checkout?: HeadInfo): Promise<Set<string> | null>
 
-    findABI(abi: number): Promise<number | undefined>
+    findABI(abi: number): Promise<HeadInfo | null>
     allABIs(): AsyncIterable<ABIRecord>
-    createEntryStream(checkout?: number): AsyncIterable<Entry>
+    createEntryStream(checkout?: HeadInfo): AsyncIterable<Entry>
 
     add(root: URL, entrypoint: string, opts?: AddOptions): Promise<Bundle>
-    load(root: URL, entrypoint: string, checkout?: number, opts?: LoadOptions): Promise<any>
+    load(root: URL, entrypoint: string, checkout?: HeadInfo, opts?: LoadOptions): Promise<any>
 
     close(): Promise<void>
   }

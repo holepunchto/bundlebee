@@ -50,6 +50,17 @@ export const schema = Hyperschema.from('./schema', { import: false })
       }
     ]
   })
+
+  ns.register({
+    name: 'version',
+    fields: [
+      {
+        name: 'length',
+        type: 'uint',
+        required: true
+      }
+    ]
+  })
 }
 
 Hyperschema.toDisk(schema, { esm: false })

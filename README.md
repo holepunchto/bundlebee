@@ -51,6 +51,16 @@ const b = new Bundlebee(store, { key, length })
 const mod = await b.load(new URL('file:///path/to/project/'), '/index.js')
 ```
 
+### Load by semver range
+
+```js
+await b.add(new URL('file:///path/to/project/'), 'index.js', { version: '1.2.0' })
+
+// elsewhere, on a replica
+const checkout = await b.resolve('^1.0.0') // { key, length, version }
+const mod = await b.load(new URL('file:///path/to/project/'), '/index.js', checkout)
+```
+
 ## API
 
 #### `const b = new Bundlebee(store, [opts])`
@@ -83,9 +93,16 @@ Traverse `entrypoint` relative to `root` (a `file://` URL) and write all discove
 
 ```js
 {
-  skipModules: true // skip bundling dependencies found in `node_modules`
+  skipModules: true, // skip bundling dependencies found in `node_modules`
+  version: '1.2.0'   // index this bundle under an exact semver version
 }
 ```
+
+Throws if `version` has already been added.
+
+#### `const checkout = await b.resolve(range)`
+
+Find the newest added version matching the semver `range`. Returns `{ key, length, version }`, which can be passed as `checkout` to `load`, `get` and friends, or `null` if nothing matches. Only sees versions the bee has been updated to.
 
 #### `const mod = await b.load(root, entrypoint, [checkout], [opts])`
 

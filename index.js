@@ -7,11 +7,13 @@ const b4a = require('b4a')
 const ReadyResource = require('ready-resource')
 const Bee = require('hyperbee2')
 const c = require('compact-encoding')
+const { Version, Range } = require('bare-semver')
 const { getEncoding } = require('./schema')
 
 const Entry = getEncoding('@bundlebee/entry')
 const Manifest = getEncoding('@bundlebee/manifest')
 const PeerDeps = getEncoding('@bundlebee/peer-deps')
+const VersionRecord = getEncoding('@bundlebee/version')
 
 const MANIFEST_KEY_VALUE = '#manifest'
 const MANIFEST_KEY = b4a.from(MANIFEST_KEY_VALUE)
@@ -115,7 +117,7 @@ module.exports = class Bundlebee extends ReadyResource {
 
     for await (const data of b.createReadStream()) {
       const id = data.key.toString()
-      if (id === MANIFEST_KEY_VALUE || id === PEERDEPS_KEY_VALUE) continue
+      if (id[0] === '#') continue
       const entry = c.decode(Entry, data.value)
       yield { ...entry, id }
     }
@@ -192,6 +194,29 @@ module.exports = class Bundlebee extends ReadyResource {
     }
   }
 
+  async resolve(range) {
+    if (!this.opened) await this.ready()
+
+    const r = Range.parse(range)
+
+    let best = null
+
+    for await (const data of this._bee.createReadStream({
+      gte: b4a.from('#version/'),
+      lt: b4a.from('#version0')
+    })) {
+      const version = Version.parse(data.key.toString().slice(9))
+      if (!r.test(version)) continue
+      if (best === null || Version.compare(version, best.version) > 0) best = { version, data }
+    }
+
+    if (best === null) return null
+
+    const { length } = c.decode(VersionRecord, best.data.value)
+
+    return { key: this.key, length, version: best.version.toString() }
+  }
+
   async checkout(checkout) {
     if (!this.opened) await this.ready()
 
@@ -222,14 +247,14 @@ module.exports = class Bundlebee extends ReadyResource {
       }
     })
 
-    const bundleCache = Object.create(null)
+    const builtins = Object.create(null)
     const allResolutions = Object.create(null)
 
     const peerDeps = await this.peerDependencies(checkout)
 
     for await (const data of b.createReadStream()) {
       const id = data.key.toString()
-      if (id === MANIFEST_KEY_VALUE || id === PEERDEPS_KEY_VALUE) continue
+      if (id[0] === '#') continue
 
       const { resolutions, source } = c.decode(Entry, data.value)
 
@@ -241,8 +266,8 @@ module.exports = class Bundlebee extends ReadyResource {
         const nm =
           (v.includes('node_modules/') && skipModules) || skip ? findModule(cache, v, root) : null
         if (nm) {
-          m[k] = 'bundle://host' + v
-          bundleCache[m[k]] = nm
+          m[k] = 'builtin:bundlebee-host' + v
+          builtins[m[k].slice(8)] = nm.exports
         } else {
           m[k] = 'bundle://layer' + v
         }
@@ -253,14 +278,15 @@ module.exports = class Bundlebee extends ReadyResource {
     return Module.load(new URL(entry, 'bundle://layer/'), {
       protocol,
       resolutions: allResolutions,
-      cache: bundleCache
+      builtins,
+      cache: Object.create(null)
     })
   }
 
   async add(
     root,
     entry,
-    { skipModules = true, peerDependencies, abi, dryRun = false, source, pre } = {}
+    { skipModules = true, peerDependencies, abi, version, dryRun = false, source, pre } = {}
   ) {
     if (!this.opened) await this.ready()
     if (!root.pathname.endsWith('/')) root = new URL('./', root)
@@ -320,7 +346,7 @@ module.exports = class Bundlebee extends ReadyResource {
 
     if (dryRun) return bundle
 
-    await this._addBundle({ bundle, abi }, { pre, peerDependencies })
+    await this._addBundle({ bundle, abi, version }, { pre, peerDependencies })
 
     return bundle
   }
@@ -334,6 +360,11 @@ module.exports = class Bundlebee extends ReadyResource {
       throw new Error(`ABI ${nextAbi} <= to current ABI ${previousManifest.abi}`)
     } else if (!nextAbi) {
       nextAbi = previousManifest ? previousManifest.abi + 1 : 1
+    }
+
+    const versionKey = data.version ? b4a.from('#version/' + Version.parse(data.version)) : null
+    if (versionKey && (await this._bee.get(versionKey))) {
+      throw new Error(`Version ${data.version} already exists`)
     }
 
     const w = this._bee.write()
@@ -367,6 +398,12 @@ module.exports = class Bundlebee extends ReadyResource {
     )
 
     await w.flush()
+
+    if (versionKey) {
+      const v = this._bee.write()
+      v.tryPut(versionKey, c.encode(VersionRecord, { length: this._bee.head().length }))
+      await v.flush()
+    }
   }
 }
 
@@ -447,6 +484,9 @@ function findModule(cache, v, root) {
     const nm = cache[cand]
     if (nm) return nm
   }
+
+  const nm = cache[new URL(v, 'file:///').href]
+  if (nm) return nm
 
   throw new Error(`failed to find module: ${v}`)
 }

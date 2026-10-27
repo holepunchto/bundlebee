@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "schema": [
     {
       "name": "resolutions",
@@ -54,6 +54,20 @@
           "array": true,
           "type": "string",
           "version": 1
+        }
+      ]
+    },
+    {
+      "name": "version",
+      "namespace": "bundlebee",
+      "compact": false,
+      "flagsPosition": -1,
+      "fields": [
+        {
+          "name": "length",
+          "required": true,
+          "type": "uint",
+          "version": 2
         }
       ]
     }
