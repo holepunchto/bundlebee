@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "schema": [
     {
       "name": "resolutions",
@@ -54,6 +54,199 @@
           "array": true,
           "type": "string",
           "version": 1
+        }
+      ]
+    },
+    {
+      "name": "release-pin",
+      "namespace": "bundlebee",
+      "compact": false,
+      "flagsPosition": -1,
+      "fields": [
+        {
+          "name": "format",
+          "required": true,
+          "type": "uint",
+          "version": 2
+        },
+        {
+          "name": "key",
+          "required": true,
+          "type": "string",
+          "version": 2
+        },
+        {
+          "name": "length",
+          "required": true,
+          "type": "uint",
+          "version": 2
+        },
+        {
+          "name": "name",
+          "required": true,
+          "type": "string",
+          "version": 2
+        },
+        {
+          "name": "version",
+          "required": true,
+          "type": "string",
+          "version": 2
+        },
+        {
+          "name": "entry",
+          "required": true,
+          "type": "string",
+          "version": 2
+        },
+        {
+          "name": "abi",
+          "required": true,
+          "type": "uint",
+          "version": 2
+        }
+      ]
+    },
+    {
+      "name": "release-asset",
+      "namespace": "bundlebee",
+      "compact": false,
+      "flagsPosition": -1,
+      "fields": [
+        {
+          "name": "path",
+          "required": true,
+          "type": "string",
+          "version": 2
+        },
+        {
+          "name": "platform",
+          "required": true,
+          "type": "string",
+          "version": 2
+        },
+        {
+          "name": "arch",
+          "required": true,
+          "type": "string",
+          "version": 2
+        }
+      ]
+    },
+    {
+      "name": "host-requirement",
+      "namespace": "bundlebee",
+      "compact": false,
+      "flagsPosition": -1,
+      "fields": [
+        {
+          "name": "specifier",
+          "required": true,
+          "type": "string",
+          "version": 2
+        },
+        {
+          "name": "version",
+          "required": true,
+          "type": "string",
+          "version": 2
+        },
+        {
+          "name": "abi",
+          "required": true,
+          "type": "string",
+          "version": 2
+        },
+        {
+          "name": "platform",
+          "required": true,
+          "type": "string",
+          "version": 2
+        },
+        {
+          "name": "arch",
+          "required": true,
+          "type": "string",
+          "version": 2
+        }
+      ]
+    },
+    {
+      "name": "release-module",
+      "namespace": "bundlebee",
+      "compact": false,
+      "flagsPosition": -1,
+      "fields": [
+        {
+          "name": "source",
+          "required": true,
+          "type": "buffer",
+          "version": 2
+        },
+        {
+          "name": "resolutions",
+          "required": true,
+          "type": "string",
+          "version": 2
+        }
+      ]
+    },
+    {
+      "name": "release-manifest",
+      "namespace": "bundlebee",
+      "compact": false,
+      "flagsPosition": -1,
+      "fields": [
+        {
+          "name": "format",
+          "required": true,
+          "type": "uint",
+          "version": 2
+        },
+        {
+          "name": "name",
+          "required": true,
+          "type": "string",
+          "version": 2
+        },
+        {
+          "name": "version",
+          "required": true,
+          "type": "string",
+          "version": 2
+        },
+        {
+          "name": "entry",
+          "required": true,
+          "type": "string",
+          "version": 2
+        },
+        {
+          "name": "abi",
+          "required": true,
+          "type": "uint",
+          "version": 2
+        },
+        {
+          "name": "files",
+          "required": true,
+          "array": true,
+          "type": "string",
+          "version": 2
+        },
+        {
+          "name": "assets",
+          "required": true,
+          "array": true,
+          "type": "@bundlebee/release-asset",
+          "version": 2
+        },
+        {
+          "name": "hosts",
+          "required": true,
+          "array": true,
+          "type": "@bundlebee/host-requirement",
+          "version": 2
         }
       ]
     }
